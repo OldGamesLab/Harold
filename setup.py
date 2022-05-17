@@ -21,7 +21,6 @@ import sys, os, glob, json, traceback
 
 def error(msg):
 	print("ERROR:", msg)
-	raw_input("")
 	sys.exit(1)
 
 def warn(msg):
@@ -174,7 +173,7 @@ def export_maps():
 		outFile = os.path.join("maps", os.path.splitext(mapName)[0] + ".json")
 
 		try:
-			info("Converting map %s ..." % mapFile)
+			info(f"Converting map {mapFile}, will write the result to {outFile}")
 			fomap.exportMap("data", mapFile, outFile)
 		except Exception:
 			traceback.print_exc()
@@ -211,7 +210,6 @@ def main():
 	info("")
 	info("Setup complete. Please review the messages above, looking for any warnings.")
 	info("Please run tsc after this to compile the source files.")
-	raw_input("")
 
 if __name__ == "__main__":
 	main()

@@ -24,7 +24,7 @@ def main():
 	img = Image.new("RGBA", (350*4, 300*5))
 
 	for i in range(0, 20):
-		print i
+		print(i)
 		tilePath = "art/intrface/wrldmp%s.png" % str(i).zfill(2)
 		tile = Image.open(tilePath)
 

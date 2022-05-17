@@ -68,7 +68,7 @@ def main():
 				i += 1
 				continue
 
-			print "[%d/%d/%d] %s..." % (i, len(FRMs), totalNum, name)
+			print("[%d/%d/%d] %s..." % (i, len(FRMs), totalNum, name))
 			imageInfo['art/'+name] = frmpixels.exportFRM(FRM, outpath, palette, exportImage)
 
 			i += 1
@@ -79,13 +79,13 @@ def main():
 			imageMap.update(imageInfo)
 			imageInfo = imageMap
 
-		print "writing image map..."
+		print("writing image map...")
 		
 		# write new imageMap
 		json.dump(imageInfo, open('%s/imageMap.json' % OUT_DIR, "w"))
 
 
 if __name__ == '__main__':
-	start_time = time.clock()
+	start_time = time.perf_counter()
 	main()
-	print("--- %s seconds ---" % (time.clock() - start_time))
+	print("--- %s seconds ---" % (time.perf_counter() - start_time))

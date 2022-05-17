@@ -99,12 +99,12 @@ def mkdirs(path):
 		if not os.path.exists(dir):
 			os.mkdir(dir)
 
-def dumpFiles(f, outDir, verbose=True):
+def dumpFiles(f, outDir, verbose=False):
 	dirTree = readDAT(f, posixPaths=True)
 	numFiles = len(dirTree)
 	i = 1
 
-	for filename, fileEntry in dirTree.iteritems():
+	for filename, fileEntry in dirTree.items():
 		outPath = os.path.join(outDir, filename)
 		mkdirs(outDir + "/" + os.path.dirname(filename))
 

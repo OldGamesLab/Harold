@@ -74,7 +74,7 @@ def readPAL(path):
 def convertAll(palette, dataDir, outDir, mode='both', imageMapMode='yes', nProcs=N_PROCS, verbose=False):
 	# Convert FRMs and FR[0-9]s, and output an image map
 
-	start_time = time.clock()
+	start_time = time.perf_counter()
 
 	if not os.path.exists(outDir):
 		os.mkdir(outDir)
@@ -122,7 +122,7 @@ def convertAll(palette, dataDir, outDir, mode='both', imageMapMode='yes', nProcs
 		# write new imageMap
 		json.dump(imageInfo, open(outDir + "/imageMap.json", "w"))
 
-	return time.clock() - start_time
+	return time.perf_counter() - start_time
 
 def main():
 	if len(sys.argv) < 5:

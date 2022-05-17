@@ -54,7 +54,7 @@ def extractPROs(dataProtoPath, outDir, onError=onError, verbose=False):
 
     with open(os.path.join(outDir, "pro.json"), "w") as fp:
         print("Writing master JSON map...")
-        json.dump(root_map, fp)
+        json.dump(root_map, fp, indent=2)
 
 def main():
     extractPROs(os.path.join("data", "proto"), "proto", verbose=True)

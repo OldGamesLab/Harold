@@ -16,6 +16,7 @@ limitations under the License.
 
 # FRM parsing/conversion library
 
+from io import BufferedReader
 import sys, os, struct, json
 import pal
 from PIL import Image
@@ -33,7 +34,7 @@ def read16At(buf, idx):
 def read32At(buf, idx):
 	return struct.unpack('!l', buf[idx:idx + 4])[0]
 
-def readFRMInfo(f, exportImage=True):
+def readFRMInfo(f: BufferedReader, exportImage=True):
 	_version = read32(f)
 	fps = read16(f)
 	_actionFrame = read16(f)
@@ -67,7 +68,7 @@ def readFRMInfo(f, exportImage=True):
 
 			frameSize = read32At(framesData, ptr + 4) # w*h
 			if exportImage:
-				framePixels[nDir].append(np.array([ord(byte) for byte in framesData[ptr + 12 : ptr + 12 + frameSize]], np.uint8))
+				framePixels[nDir].append(np.array([byte for byte in framesData[ptr + 12 : ptr + 12 + frameSize]], np.uint8))
 
 			ptr += 12 + pixelDataSize
 

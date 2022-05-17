@@ -17,24 +17,26 @@ limitations under the License.
 # Parser/converter for Fallout 1 (partially) and 2 .MAP files to a JSON format
 
 from __future__ import print_function
+from io import BufferedReader
 import sys, os, struct, json
+from typing import Any, Dict
 
 FO1_MODE = None # global
 DATA_DIR = None # global
 SCRIPT_TYPES = ["s_system", "s_spatial", "s_time", "s_item", "s_critter"]
 
-mapScriptPIDs = [{} for _ in range(5)]
+mapScriptPIDs: list[Dict[int, Any]] = [{} for _ in range(5)]
 
-def read16(f):
+def read16(f) -> int:
     return struct.unpack("!h", f.read(2))[0]
 
-def readU16(f):
+def readU16(f) -> int:
     return struct.unpack("!H", f.read(2))[0]
 
-def read32(f):
+def read32(f) -> int:
     return struct.unpack("!l", f.read(4))[0]
 
-def readU32(f):
+def readU32(f) -> int:
     return struct.unpack("!L", f.read(4))[0]
 
 def stripExt(path):
@@ -78,7 +80,7 @@ def parseTiles(f, numLevels):
 
     return floorTiles, roofTiles
 
-def parseMapScripts(f, scriptLst):
+def parseMapScripts(f, scriptLst: list[bytes]):
     totalScriptCount = 0
     spatials = []
 
@@ -133,7 +135,7 @@ def parseMapScripts(f, scriptLst):
                             print("script:", script)
                         else:
                             #print "script id:", script.spatialScriptID, "or", (script.spatialScriptID & 0xffff)
-                            scriptName = stripExt(scriptLst[scriptID].split()[0])
+                            scriptName = stripExt(scriptLst[scriptID].decode('ascii').split()[0])
                             spatials.append({"tileNum": tileNum & 0xffff,
                                              "elevation": ((tileNum >> 28) & 0xf) >> 1,
                                              "range": spatialRange,
@@ -155,7 +157,7 @@ def parseMapScripts(f, scriptLst):
     return {"count": totalScriptCount, "spatials": spatials, "mapScriptPIDs": mapScriptPIDs}
 
 # TODO: rewrite this
-def getCritterArtPath(frmPID, critterLst):
+def getCritterArtPath(frmPID, critterLst: list[bytes]):
     idx =  frmPID & 0x00000fff
     id1 = (frmPID & 0x0000f000) >> 12
     id2 = (frmPID & 0x00ff0000) >> 16
@@ -167,7 +169,7 @@ def getCritterArtPath(frmPID, critterLst):
             id2 == 0x21 or id2 == 0x40):
         raise Exception("reindex")
 
-    path = "art/critters/" + critterLst[idx].split(",")[0].upper()
+    path = "art/critters/" + critterLst[idx].decode('ascii').split(",")[0].upper()
 
     if (id1 >= 0x0b):
         raise Exception("?")
@@ -209,9 +211,9 @@ def getCritterArtPath(frmPID, critterLst):
 
 def parseItemObj(f, frmPID, protoPID, itemsLst, itemsProtoLst):
     item = {"type": "item",
-            "artPath": "art/items/" + stripExt(itemsLst[frmPID & 0xffff])
+            "artPath": "art/items/" + (stripExt(itemsLst[frmPID & 0xffff]).decode('ascii'))
            }
-    subtype = getProSubType("proto/items/" + itemsProtoLst[(protoPID & 0xffff) - 1])
+    subtype = getProSubType("proto/items/" + itemsProtoLst[(protoPID & 0xffff) - 1].decode('ascii'))
     
     if subtype == 4: # ammo
         item["subtype"] = "ammo"
@@ -234,7 +236,7 @@ def parseItemObj(f, frmPID, protoPID, itemsLst, itemsProtoLst):
 
     return item
 
-def parseObject(f, lstFiles):
+def parseObject(f, lstFiles: dict[str, list[bytes]]):
     f.read(4) # unknown (separator)
     position = read32(f)
     f.read(4*4) # unknown
@@ -275,7 +277,7 @@ def parseObject(f, lstFiles):
 
     elif objType == 3: # wall
         namedType = "wall"
-        art = "art/walls/" + stripExt(lstFiles["walls"][frmPID & 0xffff])
+        art = "art/walls/" + stripExt(lstFiles["walls"][frmPID & 0xffff].decode('ascii'))
 
     elif objType == 1: # critter
         namedType = "critter"
@@ -290,8 +292,9 @@ def parseObject(f, lstFiles):
 
     elif objType == 2: # scenery
         namedType = "scenery"
-        art = "art/scenery/" + stripExt(lstFiles["scenery"][frmPID & 0xffff])
-        subtype = getProSubType("proto/scenery/" + lstFiles["proto_scenery"][(protoPID & 0xffff) - 1])
+        art = "art/scenery/" + stripExt(lstFiles["scenery"][frmPID & 0xffff].decode('ascii'))
+        proto_scenery = lstFiles["proto_scenery"]
+        subtype = getProSubType("proto/scenery/" + (proto_scenery[(protoPID & 0xffff) - 1]).decode('ascii'))
 
         """
         # TODO: why have this? this just goes into the real "extra" field anyway
@@ -322,7 +325,7 @@ def parseObject(f, lstFiles):
 
     elif objType == 5: # misc
         namedType = "misc"
-        art = "art/misc/" + stripExt(lstFiles["misc"][frmPID & 0xffff])
+        art = "art/misc/" + stripExt(lstFiles["misc"][frmPID & 0xffff].decode('ascii'))
 
         # exit grids
         if (protoPID & 0xffff) != 1 and (protoPID & 0xffff) != 12:
@@ -366,28 +369,28 @@ def parseObject(f, lstFiles):
     #    obj["art"] = extra["artPath"].lower()
 
     if scriptID != -1:
-        scriptName = stripExt(lstFiles["scripts"][scriptID].split()[0])
+        scriptName = stripExt(lstFiles["scripts"][scriptID].decode('ascii').split()[0])
         obj["script"] = scriptName
     elif scriptID == -1 and mapPID != 0xFFFFFFFF:
         # try to use the script IDs mapped in parseMapScripts
         scriptType = (mapPID >> 24) & 0xff
         scriptPID = mapPID & 0xffff
         print("using map script for %s (script PID %d)" % (art, scriptPID))
-        scriptName = mapScriptPIDs[scriptType][scriptPID]
+        scriptName = mapScriptPIDs[scriptType][scriptPID].decode('ascii')
         print("(map script %d type %d = %s)" %  (scriptPID, scriptType, scriptName))
         obj["script"] = scriptName
 
     return obj
 
-def parseLevelObjects(f, lstFiles):
+def parseLevelObjects(f, lstFiles: dict[str, list[bytes]]):
     numObjects = readU32(f)
     return [parseObject(f, lstFiles) for _ in range(numObjects)]
 
-def parseMapObjects(f, numLevels, lstFiles):
+def parseMapObjects(f, numLevels, lstFiles: dict[str, list[bytes]]):
     numObjects = readU32(f)
     return [parseLevelObjects(f, lstFiles) for _ in range(numLevels)]
 
-def parseMap(f, lstFiles):
+def parseMap(f: BufferedReader, lstFiles: dict[str, list[bytes]]):
     global FO1_MODE
 
     version = readU32(f)
@@ -430,7 +433,7 @@ def parseMap(f, lstFiles):
     levels = []
 
     def transformTile(idx):
-        return stripExt(lstFiles["tiles"][idx].rstrip()).lower()
+        return stripExt(lstFiles["tiles"][idx].decode('ascii').rstrip()).lower()
 
     def transformTileMap(tileMap):
         return [[transformTile(idx) for idx in row] for row in tileMap]
@@ -470,7 +473,7 @@ def getImageList(map):
 
     return list(images)
 
-def exportMap(dataDir, mapFile, outFile, verbose=False):
+def exportMap(dataDir: str, mapFile: str, outFile: str, verbose=False):
     global DATA_DIR
 
     DATA_DIR = dataDir # TODO: make this not global
@@ -487,14 +490,14 @@ def exportMap(dataDir, mapFile, outFile, verbose=False):
                }
 
     with open(mapFile, "rb") as fin:
-        with open(outFile, "wb") as fout:
+        with open(outFile, "w") as fout:
             if verbose: print("writing %s..." % outFile)
             map = parseMap(fin, lstFiles)
             json.dump(map, fout)
 
             # write image list
             if verbose: print("writing image list...")
-            with open(stripExt(outFile) + ".images.json", "wb") as fimg:
+            with open(stripExt(outFile) + ".images.json", "w") as fimg:
                 json.dump(getImageList(map), fimg)
 
             if verbose: print("done")

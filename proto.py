@@ -19,12 +19,14 @@ limitations under the License.
 # Fallout 1 mode
 FO1 = True
 
+from io import BufferedReader
 import sys, os, struct, json
+from typing import Any, Dict
 
 def read16(f):
 	return struct.unpack("!h", f.read(2))[0]
 
-def read32(f):
+def read32(f: BufferedReader):
 	return struct.unpack("!l", f.read(4))[0]
 
 def read16At(buf, idx):
@@ -91,8 +93,8 @@ def readDrugEffect(f):
 
 	return obj
 
-def readItem(f):
-	obj = {}
+def readItem(f: BufferedReader):
+	obj: Dict[str, Any] = {}
 
 	flagsExt = repr(f.read(3))
 	attackMode = ord(f.read(1))
@@ -105,7 +107,8 @@ def readItem(f):
 	invFRM = read32(f)
 	soundID = ord(f.read(1))
 
-	obj["flagsExt"] = flagsExt
+	# FIXME: `flagsExt` is of `bytes` type that can't represented as JSON without additional conversions.
+	# obj["flagsExt"] = flagsExt
 	obj["itemFlags"] = ord(flagsExt[0])
 	obj["actionFlags"] = ord(flagsExt[1])
 	obj["weaponFlags"] = ord(flagsExt[2])
@@ -136,7 +139,7 @@ def readItem(f):
 		obj["caliber"] = read32(f)
 		obj["ammoPID"] = read32(f)
 		obj["maxAmmo"] = read32(f)
-		obj["soundID"] = f.read(1)
+		obj["soundID"] = ord(f.read(1))
 	elif objSubType == SUBTYPE_AMMO:
 		obj["caliber"] = read32(f)
 		obj["quantity"] = read32(f)
@@ -235,7 +238,7 @@ def readCritter(f):
 
 	return obj
 
-def readPRO(f):
+def readPRO(f: BufferedReader):
 	obj = {}
 
 	objectTypeAndID = read32(f)

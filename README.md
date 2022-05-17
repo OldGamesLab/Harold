@@ -52,18 +52,17 @@ To use this, you'll need a few things:
 
 - A copy of Fallout 2 (already installed)
 
-- Python 2.7
+- Python 3.9, earlier minor versions of Python 3 may work, but are not tested. Python 2 is not supported.
 
 - [Pillow](https://pillow.readthedocs.io/en/4.0.x) (just `pip install pillow`)
 
 - [NumPy](http://www.numpy.org/) (Windows binaries available [here](http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy).)
 
-- The TypeScript compiler, installed via `npm install -g typescript` (you'll need [node.js](https://nodejs.org/en/)).
+- The TypeScript compiler, installed via `npm install` (you'll need [node.js](https://nodejs.org/en/)).
 
 You'll need an HTTP server to run (despite being all static content) due to the way browsers sandbox requests.
 If you're comfortable with setting up nginx, lighttpd, or Apache, go for that. If not, a simple way is to use Python:
 
-- Python 2: `python -m SimpleHTTPServer` (Python 2 is already required anyway)
 - Python 3: `python -m http.server`
 
 Alternatively, Firefox can load directly from `file://`.
@@ -78,7 +77,7 @@ This will take a few minutes, it's unpacking the game archives and converting re
 
 NOTE: You may need to use `python2` instead, as some Linux distributions package `python` as Python 3. Run `python --version` to check!
 
-Then run `tsc` to compile the source code.
+Then run `npx tsc` after you've run `npm install` to compile the source code.
 
 Browse to `http://localhost/play.html?artemple` (or whatever port you're using). If all went well, it should begin the game. If not, check the JavaScript console for errors.
 
@@ -89,32 +88,32 @@ OPTIONAL: If you want sound, run `python convertAudio.py`. You'll need the `acm2
 ## FAQ
 
 - **Q:** Why TypeScript? Why a browser?
-  
-  A: Everyone has a browser: it's a portable platform for running code with more features than people expect.
-     There are other projects that use native code already... and are already seeing segfaults. :)
 
-     The project started out in JavaScript and was ported to TypeScript as it was continuing to grow. TypeScript strikes
-     an excellent balance between useful and safe.
+  A: Everyone has a browser: it's a portable platform for running code with more features than people expect.
+  There are other projects that use native code already... and are already seeing segfaults. :)
+
+  The project started out in JavaScript and was ported to TypeScript as it was continuing to grow. TypeScript strikes
+  an excellent balance between useful and safe.
 
 - **Q:** But why Python?
-  
+
   A: Python is actually quite fast when written well, despite many peoples' expectations. It is very elegant and allows me to write
-     backend code like file parsers and exporters with tiny code, very few troubles, and that I know is portable and safe.
+  backend code like file parsers and exporters with tiny code, very few troubles, and that I know is portable and safe.
 
 - **Q:** Why do I need `acm2wav` for sound?
-  
+
   A: Because it hasn't been ported to Python yet. If you're willing to contribute, give it a shot: the original Pascal source code is available online.
 
   Additionally, FFmpeg might be able to transcode ACM audio, so give that a shot. (See #30.)
-   
+
 - **Q:** Why convert all assets up front, why not load them directly?
-  
+
   A: Because it would require more processing time to load them each time they're needed rather than having them already in a sane, modern format.
-  
+
   By converting, for example, FRMs (a proprietary Interplay format) to PNGs (a ubiquitous, open modern format) we allow normal browsers or image viewers to open them, as well as edit them -- a huge win for modders. Other games or tools could take advantage of the new formats as well.
 
 - **Q:** Why do this at all?
-  
+
   A: Why not? It's a fun project, and I love Fallout. Fallout 1 and 2 do not run particularly well on modern machines, even with engine hacks. They're also hard to mod -- I'd like to change that.
 
 ## License
@@ -129,7 +128,6 @@ Testing is more than welcome: if you have issues running DarkFO, or if you find 
 
 To contribute code, simply submit a pull request with your changes. Take care to write sensible commit messages, and if you want to change major parts of the code, please discuss it with other developers first (see the Contact section below).
 I apologize in advance for any injury sustained while reading the code. :)
- 
 
 Thanks!
 
