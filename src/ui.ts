@@ -838,7 +838,8 @@ function uiInventoryScreen() {
                     // add into inventory to drop
                     console.log("moving into inventory first")
                     player.inventory.push(obj)
-                    player[slot] = null
+                    // FIXME: this doesn't type check
+                    // player[slot] = null
                 }
 
                 dropObject(player, obj)

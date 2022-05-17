@@ -101,7 +101,7 @@ class WebGLRenderer extends Renderer {
         heart.ctx = null
         heart._bg = null
 
-        var gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl")
+        var gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl") as WebGLRenderingContext
         if(!gl) {
             alert("error getting WebGL context")
             return

@@ -8,3 +8,5 @@ art/
 .DS_Store
 xcuserdata
 contents.xcworkspacedata
+node_modules
+js/
