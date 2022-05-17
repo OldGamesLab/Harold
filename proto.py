@@ -269,17 +269,17 @@ def readPRO(f):
 	elif objType == TYPE_SCENERY:
 		obj["extra"] = readScenery(f)
 	else:
-		print "unhandled type", objType
+		print(f"unhandled type {objType}")
 
 	return obj
 
 def main():
 	if len(sys.argv) != 2:
-		print "USAGE: %s PRO" % sys.argv[0]
+		print(f"USAGE: {sys.argv[0]} PRO")
 		sys.exit(1)
 
 	with open(sys.argv[1], "rb") as f:
-		print json.dumps(readPRO(f))
+		print(json.dumps(readPRO(f)))
 
 if __name__ == '__main__':
 	main()

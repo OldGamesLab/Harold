@@ -232,7 +232,7 @@ def exportFRMs(frmFiles, outFile, palette, exportImage=True):
 
 def main():
 	if len(sys.argv) < 3:
-		print "USAGE: %s FRM OUTFILE [PALETTE]" % sys.argv[0]
+		print(f"USAGE: {sys.argv[0]} FRM OUTFILE [PALETTE]")
 		sys.exit(1)
 
 	if len(sys.argv) < 4:
@@ -242,7 +242,7 @@ def main():
 
 	palette = pal.readPAL(open(palFile, "rb"))
 	palette = flatten([r, g, b] for r, g, b in palette)
-	print json.dumps(exportFRM(sys.argv[1], sys.argv[2], palette))
+	print(json.dumps(exportFRM(sys.argv[1], sys.argv[2], palette)))
 
 
 if __name__ == '__main__':

@@ -69,21 +69,21 @@ def parseElevators(f, verbose=False):
 
 	if verbose:
 		for i in range(NUM_ELEVATORS):
-			print "elevator", i
-			print "  type:", elevators[i]['type']
+			print(f"elevator{i}")
+			print(f"  type: {elevators[i]['type']}")
 			if elevators[i]['labels'] != -1:
-				print "  labels:", elevators[i]['labels']
-			print "  num buttons:", elevators[i]['buttonCount']
+				print(f"  labels: {elevators[i]['labels']}")
+			print(f"  num buttons: {elevators[i]['buttonCount']}")
 
-			print "  buttons:"
+			print("  buttons:")
 			for btn in elevators[i]['buttons']:
-				print "    -> map %d, level %d, tile %d" % (btn['mapID'], btn['level'], btn['tileNum'])
+				print(f"    -> map {btn['mapID']}, level {btn['level']}, tile {btn['tileNum']}")
 
 	return out
 
 def main():
 	if len(sys.argv) < 2:
-		print "USAGE: %s fallout2.exe" % sys.argv[0]
+		print(f"USAGE: {sys.argv[0]} fallout2.exe")
 		sys.exit(1)
 
 	with open(sys.argv[1], "rb") as f:
@@ -91,7 +91,7 @@ def main():
 		with open("lut/elevators.json", "w") as g:
 			json.dump(elevators, g)
 
-	print "done"
+	print("done")
 		
 if __name__ == '__main__':
 	main()

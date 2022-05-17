@@ -43,11 +43,11 @@ def readColorTable(f):
 
 def main():
 	if len(sys.argv) != 2:
-		print "USAGE: %s PAL" % sys.argv[0]
+		print(f"USAGE: {sys.argv[0]} PAL")
 		sys.exit(1)
 
 	with open(sys.argv[1], "rb") as f:
-		print readPAL(f)
+		print(readPAL(f))
 
 if __name__ == '__main__':
 	main()

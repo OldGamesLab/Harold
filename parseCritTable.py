@@ -59,13 +59,13 @@ def parseOneCrit(f):
 
 def readCriticalTables(f ,startOffset, endOffset):
 	if (endOffset - startOffset + 1) % (7 * 4) != 0:
-		print "StartOffset: ",startOffset," EndOffset: ",endOffset
-		print "EndOffset-StartOffset+1 contains a partial Crit. Aborting."
+		print(f"StartOffset: {startOffset} EndOffset: {endOffset}")
+		print("EndOffset-StartOffset+1 contains a partial Crit. Aborting.")
 		sys.exit(1)
 
 	if (endOffset - startOffset + 1) % (7 * 4 * 9 * 6) != 0:
-		print "StartOffset: ",startOffset," EndOffset: ",endOffset
-		print "EndOffset-StartOffset+1 contains a partial Critter Crit Table. Aborting."
+		print(f"StartOffset: {startOffset} EndOffset: {endOffset}")
+		print("EndOffset-StartOffset+1 contains a partial Critter Crit Table. Aborting.")
 		sys.exit(1)
 
 	f.seek(startOffset)
@@ -86,7 +86,7 @@ def readCriticalTables(f ,startOffset, endOffset):
 	return critTable
 def main():
 	if len(sys.argv) < 2:
-		print "USAGE: %s EXE" % sys.argv[0]
+		print(f"USAGE: {sys.argv[0]} EXE")
 		sys.exit(1)
 
 	#FO2 parsing for the internal crit effect table has to begin at:
@@ -99,7 +99,7 @@ def main():
 	with open(sys.argv[1], "rb") as f:
 		critTables = readCriticalTables(f, 0x000fef78, 0x00106597)
 	json.dump(critTables, open("lut/criticalTables.json", "w"))
-	print "done"
+	print("done")
 		
 if __name__ == '__main__':
 	main()

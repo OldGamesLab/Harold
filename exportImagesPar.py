@@ -91,33 +91,33 @@ def convertAll(palette, dataDir, outDir, mode='both', imageMapMode='yes', nProcs
 	pool = multiprocessing.Pool(processes=nProcs)
 
 	if mode == 'frx' or mode == 'both':
-		if verbose: print "scanning directories for FR[0-5]s..."
+		if verbose: print("scanning directories for FR[0-5]s...")
 		tasks = list(getFRXTasks(palette, dataDir, outDir, exportImage))
 		numTasks = len(tasks)
 		i = 1
 		
-		if verbose: print "processing %d FR[0-5]s..." % numTasks
+		if verbose: print(f"processing {numTasks} FR[0-5]s...")
 		for (k,v) in pool.imap(convertFRX, tasks, chunksize=CHUNKSIZE):
-			if verbose: print "[%d/%d] %s..." % (i, numTasks, k)
+			if verbose: print(f"[{i}/{numTasks}] {k}...")
 			imageInfo[k] = v
 			i += 1
 
 	if mode == 'frm' or mode == 'both':
 		if verbose:
-			print ""
-			print "scanning directories for FRMs..."
+			print("")
+			print("scanning directories for FRMs...")
 		tasks = list(getFRMTasks(palette, dataDir, outDir, exportImage))
 		numTasks = len(tasks)
 		i = 1
 
-		if verbose: print "processing FRMs..."
+		if verbose: print("processing FRMs...")
 		for (k,v) in pool.imap(convertFRM, tasks, chunksize=CHUNKSIZE):
-			if verbose: print "[%d/%d] %s..." % (i, numTasks, k)
+			if verbose: print(f"[{i}/{numTasks}] {k}...")
 			imageInfo[k] = v
 			i += 1
 
 	if imageMapMode != 'no':
-		if verbose: print "writing image map..."
+		if verbose: print("writing image map...")
 		
 		# write new imageMap
 		json.dump(imageInfo, open(outDir + "/imageMap.json", "w"))
@@ -126,10 +126,10 @@ def convertAll(palette, dataDir, outDir, mode='both', imageMapMode='yes', nProcs
 
 def main():
 	if len(sys.argv) < 5:
-		print "USAGE: %s PALETTE DATA_DIR OUT_DIR MODE [--no-map] [--only-map]" % sys.argv[0]
-		print "MODE is either 'frm' for .FRMs only, 'frx' for .FR[0-5]s only, or 'both' for both."
-		print "PALETTE is likely data/color.pal, and DATA_DIR is likely data/"
-		print "OUT_DIR is wherever you want the exported images and map to go"
+		print(f"USAGE: {sys.argv[0]} PALETTE DATA_DIR OUT_DIR MODE [--no-map] [--only-map]")
+		print("MODE is either 'frm' for .FRMs only, 'frx' for .FR[0-5]s only, or 'both' for both.")
+		print("PALETTE is likely data/color.pal, and DATA_DIR is likely data/")
+		print("OUT_DIR is wherever you want the exported images and map to go")
 		sys.exit(1)
 
 	palettePath = sys.argv[1]
@@ -146,7 +146,7 @@ def main():
 		imageMapMode = 'only'
 
 	elapsedTime = convertAll(palette, dataDir, outDir, mode, imageMapMode, verbose=True)
-	print "Took %r seconds" % elapsedTime
+	print(f"Took {elapsedTime} seconds")
 
 
 if __name__ == '__main__':
