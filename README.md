@@ -1,8 +1,11 @@
-# DarkFO
+# Harold
 
 A post-nuclear RPG remake
 
 This is a modern reimplementation of the engine of the video game [Fallout 2](http://en.wikipedia.org/wiki/Fallout_2), as well as a personal research project into the feasibility of doing such.
+
+The project is based on [darkfo](https://github.com/darkf/darkfo) codebase, but is modernized for Python 3, potentially
+with more improvements and bug fixes coming in the future.
 
 It is written primarily in TypeScript and Python, and targets a modern (HTML 5) Web browser.
 
