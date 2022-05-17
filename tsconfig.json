@@ -8,58 +8,10 @@
         "noImplicitAny": true,
         "noImplicitThis": true,
         "outDir": "js",
-        // "target": "es6",
-        // "strict": true,
-        "lib": ["es6", "dom", "es2017.object"]
+        "target": "es2021",
+        "lib": ["es2021", "dom"]
     },
 
-    "files": [
-        "src/config.ts",
-
-        "src/util.ts",
-        "src/geometry.ts",
-
-        "src/pro.ts",
-        
-        "src/scripting.ts",
-        "src/intfile.ts",
-        "src/dis.ts",
-        "src/vm.ts",
-        "src/vm_bridge.ts",
-
-        "src/object.ts",
-        "src/critter.ts",
-        
-        "src/criticalEffects.ts",
-        "src/skillDependencies.ts",
-        "src/char.ts",
-
-        "src/data.ts",
-        "src/worldmap.ts",
-        "src/encounters.ts",
-
-        "src/lightmap.ts",
-        "src/lighting.ts",
-
-        "src/renderer.ts",
-        "src/canvasrenderer.ts",
-        "src/webglrenderer.ts",
-
-        "src/player.ts",
-        "src/party.ts",
-        "src/combat.ts",
-        
-        "src/ui.ts",
-        "src/audio.ts",
-
-        "src/saveload.ts",
-        "src/idbcache.ts",
-
-        "src/events.ts",
-
-        "src/net.ts",
-
-        "src/map.ts",
-        "src/main.ts"
-    ]
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
 }

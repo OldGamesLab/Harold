@@ -14,9 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { lookupMapNameFromLookup, MapInfo } from "./data.js";
+import { hexInDirectionDistance, Point } from "./geometry.js";
+import globalState from "./globalState.js";
+import { Scripting } from "./scripting.js";
+import { fromTileNum } from "./tile.js";
+import { getRandomInt } from "./util.js";
+import { Worldmap } from "./worldmap.js";
+
 // Random Encounter system
 
-module Encounters {
+export module Encounters {
     enum Tok {
         IF = 0,
         LPAREN = 1,
@@ -285,7 +293,7 @@ module Encounters {
 
         console.log("pickEncounter: num: %d, chance: %d, encounters: %o", numEncounters, totalChance, succEncounters)
 
-        var luck = critterGetStat(player, "LUK")
+        var luck = globalState.player.getStat("LUK")
         var roll = getRandomInt(0, totalChance) + (luck - 5)
 
         // TODO: Adjust roll for difficulty (easy +5, hard -5),
@@ -336,7 +344,7 @@ module Encounters {
                         pos = hexInDirectionDistance(pos, dir, group.position.spacing)
                         break
                     case "surrounding":
-                        var roll = critterGetStat(player, "PER") + getRandomInt(-2, 2)
+                        var roll = globalState.player.getStat("PER") + getRandomInt(-2, 2)
                         // TODO: if have Cautious Nature perk, roll += 3
 
                         if(roll < 0)

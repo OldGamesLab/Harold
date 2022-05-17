@@ -14,51 +14,56 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { getCurrentMapInfo } from './data.js'
+import { heart } from './heart.js'
+import { getRandomInt } from './util.js'
+
 // Audio engine for handling music and sound effects
 
-interface AudioEngine {
-    playSfx(sfx: string): void;
-    playMusic(music: string): void;
-    playSound(soundName: string): HTMLAudioElement|null;
-    stopMusic(): void;
-    stopAll(): void;
-    tick(): void;
+export interface AudioEngine {
+    playSfx(sfx: string): void
+    playMusic(music: string): void
+    playSound(soundName: string): HTMLAudioElement | null
+    stopMusic(): void
+    stopAll(): void
+    tick(): void
 }
 
-class NullAudioEngine implements AudioEngine {
+export class NullAudioEngine implements AudioEngine {
     playSfx(sfx: string): void {}
     playMusic(music: string): void {}
-    playSound(soundName: string): HTMLAudioElement|null { return null }
+    playSound(soundName: string): HTMLAudioElement | null {
+        return null
+    }
     stopMusic(): void {}
     stopAll(): void {}
     tick(): void {}
 }
 
-class HTMLAudioEngine implements AudioEngine {
+export class HTMLAudioEngine implements AudioEngine {
     //lastSfxTime: number = 0
     nextSfxTime: number = 0
-    nextSfx: string|null = null
-    musicAudio: HTMLAudioElement|null = null
+    nextSfx: string | null = null
+    musicAudio: HTMLAudioElement | null = null
 
     playSfx(sfx: string): void {
-        this.playSound("sfx/" + sfx)
+        this.playSound('sfx/' + sfx)
     }
 
     playMusic(music: string): void {
         this.stopMusic()
-        this.musicAudio = this.playSound("music/" + music)
+        this.musicAudio = this.playSound('music/' + music)
     }
 
-    playSound(soundName: string): HTMLAudioElement|null {
+    playSound(soundName: string): HTMLAudioElement | null {
         var sound = new Audio()
-        sound.addEventListener("loadeddata", () => sound.play(), false)
-        sound.src = "audio/" + soundName + ".wav"
+        sound.addEventListener('loadeddata', () => sound.play(), false)
+        sound.src = 'audio/' + soundName + '.wav'
         return sound
     }
 
     stopMusic(): void {
-        if(this.musicAudio)
-            this.musicAudio.pause()
+        if (this.musicAudio) this.musicAudio.pause()
     }
 
     stopAll(): void {
@@ -70,18 +75,16 @@ class HTMLAudioEngine implements AudioEngine {
     rollNextSfx(): string {
         // Randomly obtain the next map sfx
         const curMapInfo = getCurrentMapInfo()
-        if(!curMapInfo)
-            return ""
+        if (!curMapInfo) return ''
 
         const sfx = curMapInfo.ambientSfx
         const sumFreqs = sfx.reduce((sum: number, x: [string, number]) => sum + x[1], 0)
         let roll = getRandomInt(0, sumFreqs)
 
-        for(var i = 0; i < sfx.length; i++) {
+        for (var i = 0; i < sfx.length; i++) {
             var freq = sfx[i][1]
 
-            if(roll >= freq)
-                return sfx[i][0]
+            if (roll >= freq) return sfx[i][0]
 
             roll -= freq
         }
@@ -93,16 +96,15 @@ class HTMLAudioEngine implements AudioEngine {
     tick(): void {
         var time = heart.timer.getTime()
 
-        if(!this.nextSfx)
-            this.nextSfx = this.rollNextSfx()
+        if (!this.nextSfx) this.nextSfx = this.rollNextSfx()
 
-        if(time >= this.nextSfxTime) {
+        if (time >= this.nextSfxTime) {
             // play next sfx in queue
             this.playSfx(this.nextSfx)
 
             // queue up next sfx
             this.nextSfx = this.rollNextSfx()
-            this.nextSfxTime = time + getRandomInt(15, 20)*1000
+            this.nextSfxTime = time + getRandomInt(15, 20) * 1000
         }
     }
 }

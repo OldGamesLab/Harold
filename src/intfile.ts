@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { assertEq, BinaryReader } from "./util.js";
+
 // Parser for .INT files
 
 interface Procedure {
@@ -24,7 +26,7 @@ interface Procedure {
     argc: number;
 }
 
-interface IntFile {
+export interface IntFile {
     procedures: { [name: string]: Procedure };
     proceduresTable: Procedure[];
     identifiers: { [offset: number]: string };
@@ -34,7 +36,7 @@ interface IntFile {
 }
 
 // parse .INT files
-function parseIntFile(reader: BinaryReader, name: string=""): IntFile {
+export function parseIntFile(reader: BinaryReader, name: string=""): IntFile {
     reader.seek(0x2A) // seek to procedure table
 
     // read procedure table

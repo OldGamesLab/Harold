@@ -14,9 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import globalState from "./globalState.js"
+import { IntFile } from "./intfile.js"
+import { Scripting } from "./scripting.js"
+import { BinaryReader } from "./util.js"
+import { opMap, ScriptVM } from "./vm.js"
+
 // Bridge between Scripting API and the Scripting VM
 
-module ScriptVMBridge {
+export module ScriptVMBridge {
     // create a bridged function that calls procedures on scriptObj
     function bridged(procName: string, argc: number, pushResult: boolean=true) {
         return function(this: GameScriptVM) {
@@ -38,7 +44,7 @@ module ScriptVMBridge {
     }
 
     var bridgeOpMap: { [opcode: number]: (this: GameScriptVM) => void } = {
-        0x80BF: function() { this.push(player) } // dude_obj
+        0x80BF: function() { this.push(globalState.player) } // dude_obj
        ,0x80BC: function() { this.push(this.scriptObj.self_obj) } // self_obj
        ,0x8128: function() { this.push(this.scriptObj.combat_is_initialized) } // combat_is_initialized
        ,0x8118: function() { this.push(1) } // get_month // TODO

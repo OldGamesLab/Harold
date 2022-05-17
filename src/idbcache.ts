@@ -1,4 +1,4 @@
-module IDBCache {
+export module IDBCache {
     let db: IDBDatabase = null;
 
     function withTransaction(f: (trans: IDBTransaction) => void, finished?: () => void) {

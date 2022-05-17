@@ -15,9 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Critter } from "./critter.js"
+import { loadMessage } from "./data.js"
+import globalState from "./globalState.js"
+
 // Utility functions
 
-function parseIni(text: string) {
+export function parseIni(text: string) {
     // Parse a .ini-style categorized key-value format
     const ini: { [category: string]: any } = {}
     const lines = text.split('\n')
@@ -45,7 +49,7 @@ function parseIni(text: string) {
     return ini
 }
 
-function getFileText(path: string, err?: () => void): string {
+export function getFileText(path: string, err?: () => void): string {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", path, false);
     xhr.send(null);
@@ -55,7 +59,7 @@ function getFileText(path: string, err?: () => void): string {
     return xhr.responseText;
 }
 
-function getFileJSON(path: string, err?: () => void): any {
+export function getFileJSON(path: string, err?: () => void): any {
     return JSON.parse(getFileText(path, err));
 }
 
@@ -68,7 +72,7 @@ function getFileBinaryAsync(path: string, callback: (data: DataView) => void) {
     xhr.send(null);
 }
 
-function getFileBinarySync(path: string) {
+export function getFileBinarySync(path: string) {
     // Synchronous requests aren't allowed by browsers to define response types
     // in a misguided attempt to force developers to switch to asynchronous requests,
     // so we transfer as a user-defined charset and then decode it manually.
@@ -94,11 +98,11 @@ function getFileBinarySync(path: string) {
 }
 
 // Min inclusive, max inclusive
-function getRandomInt(min: number, max: number) {
+export function getRandomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function rollSkillCheck(skill: number, modifier: number, isBounded: boolean) {
+export function rollSkillCheck(skill: number, modifier: number, isBounded: boolean) {
     const tempSkill = skill + modifier
     if(isBounded)
         clamp(0, 95, tempSkill)
@@ -108,7 +112,7 @@ function rollSkillCheck(skill: number, modifier: number, isBounded: boolean) {
 }
 
 function rollVsSkill(who: Critter, skill: string, modifier: number=0) {
-    var skillLevel = critterGetSkill(who, skill) + modifier
+    var skillLevel = who.getSkill(skill) + modifier
     var roll = skillLevel - getRandomInt(1, 100)
 
     if(roll <= 0) { // failure
@@ -117,7 +121,7 @@ function rollVsSkill(who: Critter, skill: string, modifier: number=0) {
         return 1 // failure
     }
     else { // success
-        var critChance = critterGetStat(who, "Critical Chance")
+        var critChance = who.getStat("Critical Chance")
         if((roll/10 + critChance) > getRandomInt(1, 100))
             return 3 // critical success
         return 2 // success
@@ -132,7 +136,7 @@ function rollIsCritical(roll: number) {
     return (roll == 0) || (roll == 3)
 }
 
-function arrayRemove<T>(array: T[], value: T) {
+export function arrayRemove<T>(array: T[], value: T) {
     const index = array.indexOf(value)
     if(index !== -1) {
         array.splice(index, 1)
@@ -141,40 +145,40 @@ function arrayRemove<T>(array: T[], value: T) {
     return false
 }
 
-function arrayWithout<T>(array: T[], value: T): T[] {
+export function arrayWithout<T>(array: T[], value: T): T[] {
     return array.filter(x => x !== value);
 }
 
-function arrayIncludes<T>(array: T[], value: T): boolean {
+export function arrayIncludes<T>(array: T[], value: T): boolean {
     return array.indexOf(value) !== -1;
 }
 
-function clamp(min: number, max: number, value: number) {
+export function clamp(min: number, max: number, value: number) {
     return Math.max(min, Math.min(max, value))
 }
 
-function getMessage(name: string, id: number): string|null {
-    if(messageFiles[name] !== undefined && messageFiles[name][id] !== undefined)
-        return messageFiles[name][id]
+export function getMessage(name: string, id: number): string|null {
+    if(globalState.messageFiles[name] !== undefined && globalState.messageFiles[name][id] !== undefined)
+        return globalState.messageFiles[name][id]
     else {
         loadMessage(name)
-        if(messageFiles[name] !== undefined && messageFiles[name][id] !== undefined)
-            return messageFiles[name][id]
+        if(globalState.messageFiles[name] !== undefined && globalState.messageFiles[name][id] !== undefined)
+            return globalState.messageFiles[name][id]
         else return null
     }
 }
 
-function getProtoMsg(id: number) {
+export function getProtoMsg(id: number) {
     return getMessage("proto", id)
 }
 
-function pad(n: any, width: number, z?: string) {
+export function pad(n: any, width: number, z?: string) {
   z = z || '0';
   n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
-class BinaryReader {
+export class BinaryReader {
     data: DataView
     offset: number = 0
     length: number
@@ -194,110 +198,22 @@ class BinaryReader {
     peek32(): number { return this.data.getUint32(this.offset) }
 }
 
-function assert(value: boolean, message: string) {
+export function assert(value: boolean, message: string) {
     if(!value)
         throw "AssertionError: " + message
 }
 
-function assertEq<T>(value: T, expected: T, message: string) {
+export function assertEq<T>(value: T, expected: T, message: string) {
     if(value !== expected)
         throw `AssertionError: value (${value}) does not match expected (${expected}): ${message}`
 }
 
-function jQuery_isPlainObject(obj: any): boolean {
-    var proto, Ctor;
+declare function structuredClone(value: any, options?: StructuredSerializeOptions): any;
 
-    // Detect obvious negatives
-    // Use toString instead of jQuery.type to catch host objects
-    if ( !obj || toString.call( obj ) !== "[object Object]" ) {
-        return false;
-    }
-
-    proto = Object.getPrototypeOf( obj );
-
-    // Objects with no prototype (e.g., `Object.create( null )`) are plain
-    if ( !proto ) {
-        return true;
-    }
-
-    // Objects with prototype are plain iff they were constructed by a global Object function
-    Ctor = Object.hasOwnProperty.call( proto, "constructor" ) && proto.constructor;
-    return typeof Ctor === "function" && Object.toString.call( Ctor ) === Object.toString.call(Object);
+export function deepClone<T>(obj: T): T {
+    return structuredClone(obj);
 }
 
-function jQuery_extend(this: any, deep: boolean, target: any, obj: any): any {
-    var options, name, src, copy, copyIsArray, clone,
-        target = arguments[ 0 ] || {},
-        i = 1,
-        length = arguments.length,
-        deep = false;
-
-    // Handle a deep copy situation
-    if ( typeof target === "boolean" ) {
-        deep = target;
-
-        // Skip the boolean and the target
-        target = arguments[ i ] || {};
-        i++;
-    }
-
-    // Handle case when target is a string or something (possible in deep copy)
-    if ( typeof target !== "object" && typeof(target) !== "function") {
-        target = {};
-    }
-
-    // Extend jQuery itself if only one argument is passed
-    if ( i === length ) {
-        target = this;
-        i--;
-    }
-
-    for ( ; i < length; i++ ) {
-
-        // Only deal with non-null/undefined values
-        if ( ( options = arguments[ i ] ) != null ) {
-
-            // Extend the base object
-            for ( name in options ) {
-                src = target[ name ];
-                copy = options[ name ];
-
-                // Prevent never-ending loop
-                if ( target === copy ) {
-                    continue;
-                }
-
-                // Recurse if we're merging plain objects or arrays
-                if ( deep && copy && ( jQuery_isPlainObject( copy ) ||
-                    ( copyIsArray = Array.isArray( copy ) ) ) ) {
-
-                    if ( copyIsArray ) {
-                        copyIsArray = false;
-                        clone = src && Array.isArray( src ) ? src : [];
-
-                    } else {
-                        clone = src && jQuery_isPlainObject( src ) ? src : {};
-                    }
-
-                    // Never move original objects, clone them
-                    target[ name ] = jQuery_extend( deep, clone, copy );
-
-                // Don't bring in undefined values
-                } else if ( copy !== undefined ) {
-                    target[ name ] = copy;
-                }
-            }
-        }
-    }
-
-    // Return the modified object
-    return target;
-};
-
-function deepClone<T>(obj: T): T {
-    return jQuery_extend(true, {}, obj);
-}
-
-function isNumeric(str: string): boolean {
+export function isNumeric(str: string): boolean {
     return !isNaN((str as any) - parseFloat(str));
 }

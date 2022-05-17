@@ -14,9 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Critter } from "./critter.js";
+import { StatType } from "./skills.js";
+import { getFileJSON, rollSkillCheck } from "./util.js";
+
 // Critical Effects system
 
-module CriticalEffects {
+export module CriticalEffects {
     interface Dict<T> {
         [key: string]: T;
     }
@@ -152,7 +156,7 @@ module CriticalEffects {
             if(this.stat === undefined)
                 return {success: false}
 
-            var statToRollAgainst = critterGetStat(target, this.stat)
+            var statToRollAgainst = target.getStat(this.stat)
             statToRollAgainst += this.modifier
 
             // if our target fails their skillcheck, they have to suffer the added effects.

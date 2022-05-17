@@ -15,11 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { skillDependencies, skillImprovementCost, statDependencies } from "./skills.js";
+import { clamp } from "./util.js";
+
 // Character Stats and Skills
 
 // TODO: "Melee Weapons" skill is called "Melee" in the PRO
 
-class SkillSet {
+export class SkillSet {
     baseSkills: { [name: string]: number } = {};
     tagged: string[] = [];
     skillPoints: number = 0;
@@ -123,7 +126,7 @@ class SkillSet {
     }
 }
 
-class StatSet {
+export class StatSet {
     baseStats: { [name: string]: number } = {};
     useBonuses: boolean;
 

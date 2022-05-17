@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Point } from "./geometry.js"
+import { Lightmap } from "./lightmap.js"
+import { toTileNum } from "./tile.js"
+import '../lut/intensityColorTable.js'
+
 // Floor lighting
 
-module Lighting {
+export module Lighting {
     // length 15
     var rightside_up_triangles = [2, 3, 0, 3, 4, 1, 5, 6, 3, 6, 7, 4, 8, 9, 6]
     var upside_down_triangles = [0, 3, 1, 2, 5, 3, 3, 6, 4, 5, 8, 6, 6, 9, 7]
@@ -135,7 +140,7 @@ module Lighting {
     var ambient = 0xA000 // ambient light level
 
     // Color look-up table by light intensity
-    export declare var intensityColorTable: number[];
+    export const intensityColorTable = ((globalThis as unknown) as { intensityColorTable: number[] }).intensityColorTable;
 
     export var colorLUT: any = null; // string color integer -> palette index
     export var colorRGB: any = null; // palette index -> string color integer

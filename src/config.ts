@@ -1,6 +1,6 @@
 // Configuration for the engine internals, controls and UI
 
-const Config = {
+export const Config = {
     ui: {
         screenWidth: 800,
         screenHeight: 600,
@@ -22,7 +22,7 @@ const Config = {
     },
 
     engine: {
-        renderer: "canvas", // which renderer backend to use ("canvas" or "webgl")
+        renderer: 'canvas', // which renderer backend to use ("canvas" or "webgl")
         doSaveDirtyMaps: true, // save dirty maps to in-memory cache?
         doLoadScripts: true, // should we load scripts?
         doUpdateCritters: true, // should we give critters heartbeats?
@@ -49,50 +49,50 @@ const Config = {
     },
 
     controls: {
-        cameraDown: "down",
-        cameraUp: "up",
-        cameraLeft: "left",
-        cameraRight: "right",
-        elevationDown: "q",
-        elevationUp: "e",
-        showRoof: "r",
-        showFloor: "f",
-        showObjects: "o",
-        showWalls: "w",
-        talkTo: "t",
-        inspect: "i",
-        moveTo: "m",
-        runTo: "j",
-        attack: "g",
-        combat: "c",
-        playerToTargetRaycast: "y",
-        showTargetInventory: "v",
-        use: "u",
-        kill: "k",
-        worldmap: "p",
-        calledShot: "z",
-        saveKey: "n",
-        loadKey: "m",
+        cameraDown: 'down',
+        cameraUp: 'up',
+        cameraLeft: 'left',
+        cameraRight: 'right',
+        elevationDown: 'q',
+        elevationUp: 'e',
+        showRoof: 'r',
+        showFloor: 'f',
+        showObjects: 'o',
+        showWalls: 'w',
+        talkTo: 't',
+        inspect: 'i',
+        moveTo: 'm',
+        runTo: 'j',
+        attack: 'g',
+        combat: 'c',
+        playerToTargetRaycast: 'y',
+        showTargetInventory: 'v',
+        use: 'u',
+        kill: 'k',
+        worldmap: 'p',
+        calledShot: 'z',
+        saveKey: 'n',
+        loadKey: 'm',
     },
 
     scripting: {
         debugLogShowType: {
-                stub: true,
-                log: false,
-                timer: false,
-                load: false,
-                debugMessage: true,
-                displayMessage: true,
-                floatMessage: false,
-                gvars: false,
-                lvars: false,
-                mvars: false,
-                tiles: true,
-                animation: false,
-                movement: false,
-                inventory: true,
-                party: false,
-                dialogue: false
-        }
-    }
+            stub: true,
+            log: false,
+            timer: false,
+            load: false,
+            debugMessage: true,
+            displayMessage: true,
+            floatMessage: false,
+            gvars: false,
+            lvars: false,
+            mvars: false,
+            tiles: true,
+            animation: false,
+            movement: false,
+            inventory: true,
+            party: false,
+            dialogue: false,
+        },
+    },
 }

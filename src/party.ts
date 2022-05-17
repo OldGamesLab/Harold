@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Critter } from "./critter.js";
+import globalState from "./globalState.js";
+import { deserializeObj, SerializedObj } from "./object.js";
+import { arrayIncludes, arrayRemove } from "./util.js";
+
 // Party member system for DarkFO
 
-class Party {
+export class Party {
     // party members
     party: Critter[] = []
 
@@ -36,7 +41,7 @@ class Party {
     }
 
     getPartyMembersAndPlayer(): Critter[] {
-        return [<Critter>player].concat(this.party)
+        return [<Critter>globalState.player].concat(this.party)
     }
 
     isPartyMember(obj: Critter) {
@@ -57,5 +62,3 @@ class Party {
             this.party.push(<Critter>deserializeObj(obj))
     }
 }
-
-var gParty = new Party()

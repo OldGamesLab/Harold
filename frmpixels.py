@@ -47,13 +47,6 @@ def readFRMInfo(f: BufferedReader, exportImage=True):
 
 	framesData = f.read(framesBufSize)
 
-	# print "num frames:", numFrames
-	# print "dOffsetX:", dOffsetX
-	# print "dOffsetY:", dOffsetY
-	# print "directionOffset:", directionOffset
-	# print "framesBufSize:", framesBufSize
-	# print "nDirTotal:", nDirTotal
-
 	framePixels = [[] for _ in range(nDirTotal)]
 	frameOffset = [[] for _ in range(nDirTotal)]
 	for nDir in range(nDirTotal):

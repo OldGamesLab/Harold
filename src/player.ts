@@ -14,22 +14,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { SkillSet, StatSet } from './char.js'
+import { Critter } from './critter.js'
+import { Events } from './events.js'
+import { Point } from './geometry.js'
+import globalState from './globalState.js'
+import { createObjectWithPID, WeaponObj } from './object.js'
+import { centerCamera } from './renderer.js'
+import { fromTileNum } from './tile.js'
+import { uiWorldMap } from './ui.js'
+
 // Contains the Player class and relevant initialization logic
 
-class Player extends Critter {
-    name = "Player"
+export class Player extends Critter {
+    name = 'Player'
 
-    isPlayer = true;
-    art = "art/critters/hmjmpsaa";
+    isPlayer = true
+    art = 'art/critters/hmjmpsaa'
 
-    stats = new StatSet({AGI: 8, INT: 8, STR: 8, CHA: 8, HP: 100})
+    stats = new StatSet({ AGI: 8, INT: 8, STR: 8, CHA: 8, HP: 100 })
     skills = new SkillSet(undefined, undefined, 10) // Start off with 10 skill points
 
     teamNum = 0
 
-    position = {x: 94, y: 109}
+    position = { x: 94, y: 109 }
     orientation = 3
-    gender = "male"
+    gender = 'male'
     leftHand = <WeaponObj>createObjectWithPID(9)
 
     inventory = [createObjectWithPID(41).setAmount(1337)]
@@ -37,7 +47,9 @@ class Player extends Critter {
     lightRadius = 4
     lightIntensity = 65536
 
-    toString() { return "The Dude" }
+    toString() {
+        return 'The Dude'
+    }
 
     /*
     var obj = {position: {x: 94, y: 109}, orientation: 2, frame: 0, type: "critter",
@@ -49,17 +61,15 @@ class Player extends Critter {
                    ], stats: null, skills: null, tempChanges: null}
     */
 
-    move(position: Point, curIdx?: number, signalEvents: boolean=true): boolean {
-        if(!super.move(position, curIdx, signalEvents))
-            return false
+    move(position: Point, curIdx?: number, signalEvents: boolean = true): boolean {
+        if (!super.move(position, curIdx, signalEvents)) return false
 
-        if(signalEvents)
-            Events.emit("playerMoved", position);
+        if (signalEvents) Events.emit('playerMoved', position)
 
         // check if the player has entered an exit grid
-        var objs = objectsAtPosition(this.position)
-        for(var i = 0; i < objs.length; i++) {
-            if(objs[i].type === "misc" && objs[i].extra && objs[i].extra.exitMapID !== undefined) {
+        var objs = globalState.gMap.objectsAtPosition(this.position)
+        for (var i = 0; i < objs.length; i++) {
+            if (objs[i].type === 'misc' && objs[i].extra && objs[i].extra.exitMapID !== undefined) {
                 // walking on an exit grid
                 // todo: exit grids are likely multi-hex (maybe have a set?)
                 var exitMapID = objs[i].extra.exitMapID
@@ -67,22 +77,28 @@ class Player extends Critter {
                 var startingElevation = objs[i].extra.startingElevation
                 this.clearAnim()
 
-                if(startingPosition.x === -1 || startingPosition.y === -1 ||
-                   exitMapID < 0) { // world map
-                    console.log("exit grid -> worldmap")
+                if (startingPosition.x === -1 || startingPosition.y === -1 || exitMapID < 0) {
+                    // world map
+                    console.log('exit grid -> worldmap')
                     uiWorldMap()
-                }
-                else { // another map
-                    console.log("exit grid -> map " + exitMapID + " elevation " + startingElevation +
-                        " @ " + startingPosition.x + ", " + startingPosition.y)
-                    if(exitMapID === gMap.mapID) {
+                } else {
+                    // another map
+                    console.log(
+                        'exit grid -> map ' +
+                            exitMapID +
+                            ' elevation ' +
+                            startingElevation +
+                            ' @ ' +
+                            startingPosition.x +
+                            ', ' +
+                            startingPosition.y
+                    )
+                    if (exitMapID === globalState.gMap.mapID) {
                         // same map, different elevation
-                        gMap.changeElevation(startingElevation, true)
-                        player.move(startingPosition)
-                        centerCamera(player.position)
-                    }
-                    else
-                        gMap.loadMapByID(exitMapID, startingPosition, startingElevation)
+                        globalState.gMap.changeElevation(startingElevation, true)
+                        globalState.player.move(startingPosition)
+                        centerCamera(globalState.player.position)
+                    } else globalState.gMap.loadMapByID(exitMapID, startingPosition, startingElevation)
                 }
 
                 return false

@@ -16,68 +16,20 @@ limitations under the License.
  -->
 
 <html>
+
 <head>
-<title>DarkFO</title>
-<meta charset="utf-8">
+	<title>DarkFO</title>
+	<meta charset="utf-8">
 
-<link rel="stylesheet" type="text/css" href="ui.css">
+	<link rel="stylesheet" type="text/css" href="ui.css">
 
-<script src="lib/heart.js"></script>
-<script src="lib/pathfinding-browser.js"></script>
-<script src="lib/pako.min.js"></script>
+	<script src="lib/pathfinding-browser.js"></script>
+	<script src="lib/pako.min.js"></script>
 
-<script src="js/config.js"></script>
+	<script type="module" src="js/main.js"></script>
 
-<script src="js/util.js"></script>
-<script src="js/geometry.js"></script>
-
-<script src="js/pro.js"></script>
-        
-<script src="js/scripting.js"></script>
-<script src="js/intfile.js"></script>
-<script src="js/dis.js"></script>
-<script src="js/vm.js"></script>
-<script src="js/vm_bridge.js"></script>
-
-<script src="js/object.js"></script>
-<script src="js/critter.js"></script>
-        
-<script src="js/criticalEffects.js"></script>
-<script src="js/skillDependencies.js"></script>
-<script src="js/char.js"></script>
-
-<script src="js/data.js"></script>
-<script src="js/worldmap.js"></script>
-<script src="js/encounters.js"></script>
-
-<script src="js/lightmap.js"></script>
-<script src="js/lighting.js"></script>
-<!-- Optional look-up table -->
-<script src="lut/intensityColorTable.js"></script>
-
-<script src="js/renderer.js"></script>
-<script src="js/canvasrenderer.js"></script>
-<script src="js/webglrenderer.js"></script>
-
-<script src="js/player.js"></script>
-<script src="js/party.js"></script>
-<script src="js/combat.js"></script>
-        
-<script src="js/ui.js"></script>
-<script src="js/audio.js"></script>
-
-<script src="js/saveload.js"></script>
-<script src="js/idbcache.js"></script>
-
-<script src="js/events.js"></script>
-
-<script src="js/net.js"></script>
-
-<script src="js/map.js"></script>
-<script src="js/main.js"></script>
-
-<!-- WebGL vertex shader -->
-<script id="2d-vertex-shader" type="x-shader/x-vertex">
+	<!-- WebGL vertex shader -->
+	<script id="2d-vertex-shader" type="x-shader/x-vertex">
 attribute vec2 a_position;
 
 attribute vec2 a_texCoord;
@@ -104,8 +56,8 @@ void main() {
 }
 </script>
 
-<!-- WebGL fragment shader -->
-<script id="2d-fragment-shader" type="x-shader/x-fragment">
+	<!-- WebGL fragment shader -->
+	<script id="2d-fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
 
 uniform sampler2D u_image;
@@ -123,8 +75,8 @@ void main() {
 }
 </script>
 
-<!-- WebGL floor lighting fragment shader -->
-<script id="2d-lighting-fragment-shader" type="x-shader/x-fragment">
+	<!-- WebGL floor lighting fragment shader -->
+	<script id="2d-lighting-fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
 
 // uniform int u_colorTable[0x8000];
@@ -180,129 +132,131 @@ void main() {
 }
 </script>
 </head>
+
 <body>
-<div id="game-container">
-	<canvas id="cnv" width="800" height="600">your browser doesn't support &lt;canvas&gt;</canvas>
-	<div id="overlay-container">
-		<div id="overlay">
-			<div id="fpsOverlay"></div>
-		</div>
-	</div>
-	<div id="lootBox">
-		<div id="lootBoxLeft"></div>
-		<div id="lootBoxRight"></div>
-
-		<div id="lootBoxDoneButton"></div>
-		<div id="lootBoxTakeAllButton"></div>
-	</div>
-	<div id="dialogueContainer">
-  		<div id="dialogueBoxReply"></div>
-		<div id="dialogueBox">
-	  		<div id="dialogueBoxTextArea"></div>
-		</div>
-		<div id="barterBox">
-	  		<div id="barterBoxInventoryLeft"></div>
-	  		<div id="barterBoxInventoryRight"></div>
-
-	  		<div id="barterBoxLeft"></div>
-	  		<div id="barterBoxRight"></div>
-	  		<div id="barterBoxLeftAmount"></div>
-	  		<div id="barterBoxRightAmount"></div>
-
-	  		<div id="barterTalkButton"></div>
-	  		<div id="barterOfferButton"></div>
-		</div>
-	</div>
-	<div id="itemContextMenu"></div>
-	<div id="inventoryBox">
-		<div id="inventoryBoxList"></div>
-		<div id="inventoryDoneButton"></div>
-		<div id="inventoryBoxInfo"></div>
-
-		<!-- item1/item2/armor boxes -->
-		<div id="inventoryBoxItem1"></div>
-		<div id="inventoryBoxItem2"></div>
-		<div id="inventoryBoxArmor"></div>
-	</div>
-	<div id="bar">
-		<div id="displayLog"></div>
-
-		<div id="attackButtonContainer" class="disable-selection">
-			<div id="attackButton"></div>
-			<img id="attackButtonType">
-			<img id="attackButtonWeapon">
-			<div id="attackButtonCalled"></div>
-			<div id="attackButtonAP">
-				<div id="attackButtonAPDigit"></div>
+	<div id="game-container">
+		<canvas id="cnv" width="800" height="600">your browser doesn't support &lt;canvas&gt;</canvas>
+		<div id="overlay-container">
+			<div id="overlay">
+				<div id="fpsOverlay"></div>
 			</div>
 		</div>
-		<div id="inventoryButton"></div>
-		<div id="chrButton"></div>
+		<div id="lootBox">
+			<div id="lootBoxLeft"></div>
+			<div id="lootBoxRight"></div>
 
-		<div id="hpNumber">
-			<div id="hpDigit1" class="number"></div>
-			<div id="hpDigit2" class="number"></div>
-			<div id="hpDigit3" class="number"></div>
-			<div id="hpDigit4" class="number"></div>
+			<div id="lootBoxDoneButton"></div>
+			<div id="lootBoxTakeAllButton"></div>
 		</div>
-
-		<div id="acNumber">
-			<div id="acDigit1" class="number"></div>
-			<div id="acDigit2" class="number"></div>
-			<div id="acDigit3" class="number"></div>
-			<div id="acDigit4" class="number"></div>
-		</div>
-
-		<div id="skilldexButton"></div>
-
-		<div id="endContainer">
-			<div id="endTurnButton"></div>
-			<div id="endCombatButton"></div>
-		</div>
-	</div>
-	<div id="worldMapContainer">
-		<div id="worldMapBox">
-			<div id="worldMapLabels"></div>
-		</div>
-		<div id="worldMapWorld">
-			<div id="worldmap">
-				<img id="worldmapImage" src="worldmap.png">
-				<div id="worldmapTarget"></div>
-				<div id="worldmapPlayer"></div>
+		<div id="dialogueContainer">
+			<div id="dialogueBoxReply"></div>
+			<div id="dialogueBox">
+				<div id="dialogueBoxTextArea"></div>
 			</div>
-			<div id="areamap"></div>
+			<div id="barterBox">
+				<div id="barterBoxInventoryLeft"></div>
+				<div id="barterBoxInventoryRight"></div>
+
+				<div id="barterBoxLeft"></div>
+				<div id="barterBoxRight"></div>
+				<div id="barterBoxLeftAmount"></div>
+				<div id="barterBoxRightAmount"></div>
+
+				<div id="barterTalkButton"></div>
+				<div id="barterOfferButton"></div>
+			</div>
+		</div>
+		<div id="itemContextMenu"></div>
+		<div id="inventoryBox">
+			<div id="inventoryBoxList"></div>
+			<div id="inventoryDoneButton"></div>
+			<div id="inventoryBoxInfo"></div>
+
+			<!-- item1/item2/armor boxes -->
+			<div id="inventoryBoxItem1"></div>
+			<div id="inventoryBoxItem2"></div>
+			<div id="inventoryBoxArmor"></div>
+		</div>
+		<div id="bar">
+			<div id="displayLog"></div>
+
+			<div id="attackButtonContainer" class="disable-selection">
+				<div id="attackButton"></div>
+				<img id="attackButtonType">
+				<img id="attackButtonWeapon">
+				<div id="attackButtonCalled"></div>
+				<div id="attackButtonAP">
+					<div id="attackButtonAPDigit"></div>
+				</div>
+			</div>
+			<div id="inventoryButton"></div>
+			<div id="chrButton"></div>
+
+			<div id="hpNumber">
+				<div id="hpDigit1" class="number"></div>
+				<div id="hpDigit2" class="number"></div>
+				<div id="hpDigit3" class="number"></div>
+				<div id="hpDigit4" class="number"></div>
+			</div>
+
+			<div id="acNumber">
+				<div id="acDigit1" class="number"></div>
+				<div id="acDigit2" class="number"></div>
+				<div id="acDigit3" class="number"></div>
+				<div id="acDigit4" class="number"></div>
+			</div>
+
+			<div id="skilldexButton"></div>
+
+			<div id="endContainer">
+				<div id="endTurnButton"></div>
+				<div id="endCombatButton"></div>
+			</div>
+		</div>
+		<div id="worldMapContainer">
+			<div id="worldMapBox">
+				<div id="worldMapLabels"></div>
+			</div>
+			<div id="worldMapWorld">
+				<div id="worldmap">
+					<img id="worldmapImage" src="worldmap.png">
+					<div id="worldmapTarget"></div>
+					<div id="worldmapPlayer"></div>
+				</div>
+				<div id="areamap"></div>
+			</div>
+		</div>
+		<div id="elevatorBox">
+			<div id="elevatorLabel"></div>
+			<div id="elevatorButton1" class="elevatorButton"></div>
+			<div id="elevatorButton2" class="elevatorButton"></div>
+			<div id="elevatorButton3" class="elevatorButton"></div>
+			<div id="elevatorButton4" class="elevatorButton"></div>
+			<div id="elevatorPositioner"></div>
+		</div>
+		<div id="calledShotBox">
+			<div id="calledShotBackground"></div>
+			<div id="calledShotCancelBtn"></div>
+
+			<div id="calledShot-head-label" class="calledShotLabel">the head</div>
+			<div id="calledShot-eyes-label" class="calledShotLabel">the eyes</div>
+			<div id="calledShot-leftArm-label" class="calledShotLabel">the left arm</div>
+			<div id="calledShot-rightArm-label" class="calledShotLabel">the right arm</div>
+			<div id="calledShot-leftLeg-label" class="calledShotLabel">the left leg</div>
+			<div id="calledShot-rightLeg-label" class="calledShotLabel">the right leg</div>
+			<div id="calledShot-groin-label" class="calledShotLabel">the groin</div>
+			<div id="calledShot-torso-label" class="calledShotLabel">the torso</div>
+
+			<div id="calledShot-head-chance" class="calledShotChance"></div>
+			<div id="calledShot-eyes-chance" class="calledShotChance"></div>
+			<div id="calledShot-leftArm-chance" class="calledShotChance"></div>
+			<div id="calledShot-rightArm-chance" class="calledShotChance"></div>
+			<div id="calledShot-leftLeg-chance" class="calledShotChance"></div>
+			<div id="calledShot-rightLeg-chance" class="calledShotChance"></div>
+			<div id="calledShot-groin-chance" class="calledShotChance"></div>
+			<div id="calledShot-torso-chance" class="calledShotChance"></div>
 		</div>
 	</div>
-	<div id="elevatorBox">
-		<div id="elevatorLabel"></div>
-		<div id="elevatorButton1" class="elevatorButton"></div>
-		<div id="elevatorButton2" class="elevatorButton"></div>
-		<div id="elevatorButton3" class="elevatorButton"></div>
-		<div id="elevatorButton4" class="elevatorButton"></div>
-		<div id="elevatorPositioner"></div>
-	</div>
-	<div id="calledShotBox">
-		<div id="calledShotBackground"></div>
-		<div id="calledShotCancelBtn"></div>
-	
-		<div id="calledShot-head-label" class="calledShotLabel">the head</div>
-		<div id="calledShot-eyes-label" class="calledShotLabel">the eyes</div>
-		<div id="calledShot-leftArm-label" class="calledShotLabel">the left arm</div>
-		<div id="calledShot-rightArm-label" class="calledShotLabel">the right arm</div>
-		<div id="calledShot-leftLeg-label" class="calledShotLabel">the left leg</div>
-		<div id="calledShot-rightLeg-label" class="calledShotLabel">the right leg</div>
-		<div id="calledShot-groin-label" class="calledShotLabel">the groin</div>
-		<div id="calledShot-torso-label" class="calledShotLabel">the torso</div>
-
-		<div id="calledShot-head-chance" class="calledShotChance"></div>
-		<div id="calledShot-eyes-chance" class="calledShotChance"></div>
-		<div id="calledShot-leftArm-chance" class="calledShotChance"></div>
-		<div id="calledShot-rightArm-chance" class="calledShotChance"></div>
-		<div id="calledShot-leftLeg-chance" class="calledShotChance"></div>
-		<div id="calledShot-rightLeg-chance" class="calledShotChance"></div>
-		<div id="calledShot-groin-chance" class="calledShotChance"></div>
-		<div id="calledShot-torso-chance" class="calledShotChance"></div>
-	</div>
-</div>
 </body>
+
 </html>

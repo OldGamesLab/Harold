@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { Point } from "./geometry.js";
+import globalState from "./globalState.js";
+import { SerializedMap } from "./map.js";
+import { deserializeObj, SerializedObj } from "./object.js";
+
 // Saving and loading support
 
-module SaveLoad {
+export module SaveLoad {
     let db: IDBDatabase;
 
     // Save game metadata + maps
@@ -36,16 +41,16 @@ module SaveLoad {
     function gatherSaveData(name: string): SaveGame {
         // Saves the game and returns the savegame
 
-        const curMap = gMap.serialize();
+        const curMap = globalState.gMap.serialize();
 
         return { version: 1
                , name
                , timestamp: Date.now()
-               , currentElevation
+               , currentElevation: globalState.currentElevation
                , currentMap: curMap.name
-               , player: {position: player.position, orientation: player.orientation, inventory: player.inventory.map(obj => obj.serialize())}
-               , party: gParty.serialize()
-               , savedMaps: {[curMap.name]: curMap, ...dirtyMapCache}
+               , player: {position: globalState.player.position, orientation: globalState.player.orientation, inventory: globalState.player.inventory.map(obj => obj.serialize())}
+               , party: globalState.gParty.serialize()
+               , savedMaps: {[curMap.name]: curMap, ...globalState.dirtyMapCache}
                };
     }
 
@@ -96,8 +101,8 @@ module SaveLoad {
     export function save(name: string, slot: number=-1, callback?: () => void): void {
         const save = gatherSaveData(name);
 
-        const dirtyMapNames = Object.keys(dirtyMapCache);
-        console.log(`[SaveLoad] Saving ${1 + dirtyMapNames.length} maps (current: ${gMap.name} plus dirty maps: ${dirtyMapNames.join(", ")})`);
+        const dirtyMapNames = Object.keys(globalState.dirtyMapCache);
+        console.log(`[SaveLoad] Saving ${1 + dirtyMapNames.length} maps (current: ${globalState.gMap.name} plus dirty maps: ${dirtyMapNames.join(", ")})`);
 
         if(slot !== -1)
             save.id = slot;
@@ -119,21 +124,21 @@ module SaveLoad {
 
                 console.log("[SaveLoad] Loading save #%d ('%s') from %s", id, save.name, formatSaveDate(save));
 
-                gMap.deserialize(savedMap);
+                globalState.gMap.deserialize(savedMap);
                 console.log("[SaveLoad] Finished map deserialization");
 
                 // TODO: Properly (de)serialize the player!
-                player.position = save.player.position;
-                player.orientation = save.player.orientation;
-                player.inventory = save.player.inventory.map(obj => deserializeObj(obj));
+                globalState.player.position = save.player.position;
+                globalState.player.orientation = save.player.orientation;
+                globalState.player.inventory = save.player.inventory.map(obj => deserializeObj(obj));
                 
-                gParty.deserialize(save.party);
+                globalState.gParty.deserialize(save.party);
 
-                gMap.changeElevation(save.currentElevation, false);
+                globalState.gMap.changeElevation(save.currentElevation, false);
 
                 // populate dirty map cache out of non-current saved maps
-                dirtyMapCache = {...save.savedMaps};
-                delete dirtyMapCache[savedMap.name];
+                globalState.dirtyMapCache = {...save.savedMaps};
+                delete globalState.dirtyMapCache[savedMap.name];
 
                 console.log("[SaveLoad] Finished loading map %s", savedMap.name);
             };

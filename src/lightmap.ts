@@ -14,6 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { hexInDirectionDistance } from "./geometry.js"
+import globalState from "./globalState.js"
+import { Obj } from "./object.js"
+import { fromTileNum, setCenterTile, toTileNum } from "./tile.js"
+
 // Generates a lightmap for floor lighting
 
 // You should call obj_light_table_init whenever the tilemap
@@ -22,7 +27,7 @@ limitations under the License.
 // obj_rebuild_all_light should be called whenever an object
 // moves or the tilemap changes.
 
-module Lightmap {
+export module Lightmap {
     function light_reset(): void {
         for(var i = 0; i < tile_intensity.length; i++)
             tile_intensity[i] = 655
@@ -283,7 +288,7 @@ module Lightmap {
                         if(nextTile > 0 && nextTile < 40000) { // nextTile is within valid tile range
                             var edi = 1
                             // for each object at position nextTile
-                            var objs = objectsAtPosition(fromTileNum(nextTile))
+                            var objs = globalState.gMap.objectsAtPosition(fromTileNum(nextTile))
                             for(var objsN = 0; objsN < objs.length; objsN++) {
                                 var curObj = objs[objsN]
                                 if(!curObj.pro) // XXX: why wouldn't an object have pro?
@@ -356,10 +361,10 @@ module Lightmap {
 
     export function obj_light_table_init(): void {
         setCenterTile()
-        //var centerTile_: Point = centerTile()
+        //var centerTile_: Point = getCenterTile()
 
         // should we use the center tile at all?
-        var edi = toTileNum(tile_center)
+        var edi = toTileNum(globalState.centerTile)
         var edx = edi & 1
         var eax = edx*4
         eax -= edx
@@ -537,7 +542,7 @@ module Lightmap {
     function obj_rebuild_all_light(): void {
         light_reset()
 
-        gMap.getObjects().forEach(obj => {
+        globalState.gMap.getObjects().forEach(obj => {
             obj_adjust_light(obj, false)
         })
     }

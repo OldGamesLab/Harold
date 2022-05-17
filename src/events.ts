@@ -16,7 +16,7 @@ limitations under the License.
 
 // Event manager
 
-module Events {
+export module Events {
     export type EventHandler = (e: any) => void;
 
     const handlers: { [msgType: string]: EventHandler[] } = {};

@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import { getLstId } from "./data.js"
+import globalState from "./globalState.js"
+
 // Functions handling FO2 prototypes and lookups performed on them
 
 function getPROType(pid: number) {
@@ -21,8 +24,8 @@ function getPROType(pid: number) {
     return map[(pid >> 24) & 0xff]
 }
 
-function loadPRO(pid: number, pidID: number) {
-    if(!proMap)
+export function loadPRO(pid: number, pidID: number) {
+    if(!globalState.proMap)
         return null
 
     // use the proto/ .lst files to look up type/pid
@@ -33,21 +36,21 @@ function loadPRO(pid: number, pidID: number) {
                 "walls": "proto/walls/walls"}
     const id = lsts[type] ? parseInt(getLstId(lsts[type], pidID - 1).split(".")[0], 10) : pidID
 
-    return proMap[type][id]
+    return globalState.proMap[type][id]
 }
 
-function getPROTypeName(type: number) {
+export function getPROTypeName(type: number) {
     // singular
     const map: { [type: number]: string } = {0: 'item', 1: 'critter', 2: 'scenery', 3: 'wall', 4: 'tile', 5: 'misc'}
     return map[type]
 }
 
-function getPROSubTypeName(type: number): string {
+export function getPROSubTypeName(type: number): string {
     const map: { [type: number]: string } = {0: 'armor', 1: 'container', 2: 'drug', 3: 'weapon', 4: 'ammo', 5: 'misc', 6: 'key'}
     return map[type]
 }
 
-function makePID(type: number, pid: number) {
+export function makePID(type: number, pid: number) {
     return (type << 24) | pid
 }
 
@@ -104,11 +107,11 @@ function getCritterArtPath(frmPID: number) {
     return path
 }
 
-function lookupInterfaceArt(idx: number) {
+export function lookupInterfaceArt(idx: number) {
     return "art/intrface/" + getLstId("art/intrface/intrface", idx).split('.')[0].toLowerCase()
 }
 
-function lookupArt(frmPID: number) {
+export function lookupArt(frmPID: number) {
     var type = getPROType(frmPID)
     var pidID = frmPID & 0xffff
 
