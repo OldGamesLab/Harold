@@ -115,7 +115,9 @@ export class GameMap {
     }
 
     hasRoofAt(pos: Point, elevation?: number): boolean {
-        if (elevation === undefined) elevation = this.currentElevation
+        if (elevation === undefined) {
+            elevation = this.currentElevation
+        }
 
         const tilePos = hexToTile(pos)
         return this.mapObj.levels[elevation].tiles.roof[tilePos.y][tilePos.x] !== 'grid000'
@@ -134,17 +136,23 @@ export class GameMap {
         //this.spatials = this.mapObj.levels[level]["spatials"]
 
         // If we're in combat, end it since we're moving off of that elevation
-        if (globalState.inCombat) globalState.combat.end()
+        if (globalState.inCombat) {
+            globalState.combat.end()
+        }
 
         globalState.player.clearAnim()
 
         // Remove player & party (unless we're loading a new map, in which case they're not present)
         // and place them on the new map
         for (const obj of globalState.gParty.getPartyMembersAndPlayer()) {
-            if (!isMapLoading) arrayRemove(this.objects[oldElevation], obj)
+            if (!isMapLoading) {
+                arrayRemove(this.objects[oldElevation], obj)
+            }
 
             // Only add the member once, in case changeElevation is called multiple times
-            if (this.objects[level].indexOf(obj) === -1) this.objects[level].push(obj)
+            if (this.objects[level].indexOf(obj) === -1) {
+                this.objects[level].push(obj)
+            }
         }
 
         this.placeParty()
@@ -186,10 +194,14 @@ export class GameMap {
                     }
                 }
 
-                if (placed) break
+                if (placed) {
+                    break
+                }
             }
 
-            if (!placed) console.log("couldn't place %o (player position: %o)", obj, globalState.player.position)
+            if (!placed) {
+                console.log("couldn't place %o (player position: %o)", obj, globalState.player.position)
+            }
         })
     }
 
@@ -243,9 +255,13 @@ export class GameMap {
             this.deserialize(map)
 
             // Set position and orientation
-            if (startingPosition !== undefined) globalState.player.position = startingPosition
+            if (startingPosition !== undefined) {
+                globalState.player.position = startingPosition
+            }
             // Use default map starting position
-            else globalState.player.position = map.mapObj.startPosition
+            else {
+                globalState.player.position = map.mapObj.startPosition
+            }
 
             globalState.player.orientation = map.mapObj.startOrientation
 
@@ -274,12 +290,16 @@ export class GameMap {
 
     loadNewMap(mapName: string, startingPosition?: Point, startingElevation?: number, loadedCallback?: () => void) {
         function load(file: string, callback?: (x: HTMLImageElement) => void) {
-            if (globalState.images[file] !== undefined) return // don't load more than once
+            if (globalState.images[file] !== undefined) {
+                return
+            } // don't load more than once
             globalState.loadingAssetsTotal++
             heart.graphics.newImage(file + '.png', (r: HTMLImageElement) => {
                 globalState.images[file] = r
                 globalState.loadingAssetsLoaded++
-                if (callback) callback(r)
+                if (callback) {
+                    callback(r)
+                }
             })
         }
 
@@ -303,7 +323,9 @@ export class GameMap {
         console.log('loading map ' + mapName)
 
         const mapImages = getFileJSON('maps/' + mapName + '.images.json')
-        for (let i = 0; i < mapImages.length; i++) load(mapImages[i])
+        for (let i = 0; i < mapImages.length; i++) {
+            load(mapImages[i])
+        }
         console.log('loading ' + mapImages.length + ' images')
 
         const map = getFileJSON('maps/' + mapName + '.json')
@@ -322,7 +344,9 @@ export class GameMap {
                 this.mapScript = null
                 console.log('ERROR LOADING MAP SCRIPT:', e.message)
             }
-        } else this.mapScript = null
+        } else {
+            this.mapScript = null
+        }
 
         // warp to the default position (may be overridden by map script)
         globalState.player.position = startingPosition || map.startPosition
@@ -336,8 +360,9 @@ export class GameMap {
                 this.spatials.forEach((level: any) =>
                     level.forEach((spatial: Spatial) => {
                         const script = Scripting.loadScript(spatial.script)
-                        if (script === null) console.log('load script failed for spatial ' + spatial.script)
-                        else {
+                        if (script === null) {
+                            console.log('load script failed for spatial ' + spatial.script)
+                        } else {
                             spatial._script = script
                             // no need to initialize here because spatials only use spatial_p_proc
                         }
@@ -348,7 +373,9 @@ export class GameMap {
                 )
             }
         } // TODO: Spatial type
-        else this.spatials = map.levels.map((_: any) => [] as Spatial[])
+        else {
+            this.spatials = map.levels.map((_: any) => [] as Spatial[])
+        }
 
         // Load map objects. Note that these need to be loaded *after* the map so that object scripts
         // have access to the map script object.
@@ -397,15 +424,20 @@ export class GameMap {
         // clear audio and use the map music
         const curMapInfo = getCurrentMapInfo()
         globalState.audioEngine.stopAll()
-        if (curMapInfo && curMapInfo.music) globalState.audioEngine.playMusic(curMapInfo.music)
+        if (curMapInfo && curMapInfo.music) {
+            globalState.audioEngine.playMusic(curMapInfo.music)
+        }
 
         Events.emit('loadMapPost')
     }
 
     loadMapByID(mapID: number, startingPosition?: Point, startingElevation?: number): void {
         const mapName = lookupMapName(mapID)
-        if (mapName !== null) this.loadMap(mapName, startingPosition, startingElevation)
-        else console.log("couldn't lookup map name for map ID " + mapID)
+        if (mapName !== null) {
+            this.loadMap(mapName, startingPosition, startingElevation)
+        } else {
+            console.log("couldn't lookup map name for map ID " + mapID)
+        }
     }
 
     objectsAtPosition(position: Point): Obj[] {
@@ -419,13 +451,17 @@ export class GameMap {
     /// Draws a line between a and b, returning the first object hit
     hexLinecast(a: Point, b: Point): Obj | null {
         let line = hexLine(a, b)
-        if (line === null) return null
+        if (line === null) {
+            return null
+        }
         line = line.slice(1, -1)
         for (let i = 0; i < line.length; i++) {
             // todo: we could optimize this by only
             // checking in a certain radius of `a`
             const obj = this.objectsAtPosition(line[i])
-            if (obj.length !== 0) return obj[0]
+            if (obj.length !== 0) {
+                return obj[0]
+            }
         }
         return null
     }
@@ -433,14 +469,18 @@ export class GameMap {
     recalcPath(start: Point, goal: Point, isGoalBlocking?: boolean) {
         const matrix = new Array(HEX_GRID_SIZE)
 
-        for (let y = 0; y < HEX_GRID_SIZE; y++) matrix[y] = new Array(HEX_GRID_SIZE)
+        for (let y = 0; y < HEX_GRID_SIZE; y++) {
+            matrix[y] = new Array(HEX_GRID_SIZE)
+        }
 
         for (const obj of this.getObjects()) {
             // if there are multiple, any blocking one will block
             matrix[obj.position.y][obj.position.x] |= <any>obj.blocks()
         }
 
-        if (isGoalBlocking === false) matrix[goal.y][goal.x] = 0
+        if (isGoalBlocking === false) {
+            matrix[goal.y][goal.x] = 0
+        }
 
         const grid = new PF.Grid(HEX_GRID_SIZE, HEX_GRID_SIZE, matrix)
         const finder = new PF.BestFirstFinder()

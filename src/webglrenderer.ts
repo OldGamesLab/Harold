@@ -60,13 +60,17 @@ export class WebGLRenderer extends Renderer {
         // Upload the image into the texture.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
 
-        if (doCache) this.textures[key] = texture
+        if (doCache) {
+            this.textures[key] = texture
+        }
         return texture
     }
 
     getTexture(name: string): WebGLTexture | null {
         const texture = this.textures[name]
-        if (texture !== undefined) return texture
+        if (texture !== undefined) {
+            return texture
+        }
         return null
     }
 
@@ -130,7 +134,9 @@ export class WebGLRenderer extends Renderer {
         }
         this.gl = gl
 
-        if (!gl.getExtension('OES_texture_float')) throw 'no texture float extension'
+        if (!gl.getExtension('OES_texture_float')) {
+            throw 'no texture float extension'
+        }
 
         this.gl.clearColor(0.75, 0.75, 0.75, 1.0)
         this.gl.enable(this.gl.DEPTH_TEST)
@@ -212,7 +218,9 @@ export class WebGLRenderer extends Renderer {
             // intensityColorTable
             const _intensityColorTable = Lighting.intensityColorTable
             const intensityColorTable = new Uint8Array(65536)
-            for (let i = 0; i < 65536; i++) intensityColorTable[i] = _intensityColorTable[i]
+            for (let i = 0; i < 65536; i++) {
+                intensityColorTable[i] = _intensityColorTable[i]
+            }
             gl.activeTexture(gl.TEXTURE3)
             this.textureFromArray(intensityColorTable)
             gl.uniform1i(this.u_intensityColorTable, 3)
@@ -332,7 +340,9 @@ export class WebGLRenderer extends Renderer {
         for (let i = tileMap.length - 1; i >= 0; i--) {
             for (let j = 0; j < tileMap[0].length; j++) {
                 const tile = tileMap[j][i]
-                if (tile === 'grid000') continue
+                if (tile === 'grid000') {
+                    continue
+                }
                 const img = 'art/tiles/' + tile
 
                 const scr = tileToScreen(i, j)
@@ -341,8 +351,9 @@ export class WebGLRenderer extends Renderer {
                     scr.y + TILE_HEIGHT < globalState.cameraPosition.y ||
                     scr.x >= globalState.cameraPosition.x + SCREEN_WIDTH ||
                     scr.y >= globalState.cameraPosition.y + SCREEN_HEIGHT
-                )
+                ) {
                     continue
+                }
 
                 if (img !== lastTexture) {
                     gl.activeTexture(gl.TEXTURE0)
@@ -368,7 +379,9 @@ export class WebGLRenderer extends Renderer {
                 let framebuffer
                 let intensity_
 
-                if (isTriangleLit) framebuffer = Lighting.computeFrame()
+                if (isTriangleLit) {
+                    framebuffer = Lighting.computeFrame()
+                }
 
                 // render tile
                 for (let y = 0; y < 36; y++) {
@@ -416,7 +429,9 @@ export class WebGLRenderer extends Renderer {
         for (let i = 0; i < tilemap.length; i++) {
             for (let j = 0; j < tilemap[0].length; j++) {
                 const tile = tilemap[j][i]
-                if (tile === 'grid000') continue
+                if (tile === 'grid000') {
+                    continue
+                }
                 const img = 'art/tiles/' + tile
 
                 const scr = tileToScreen(i, j)
@@ -426,8 +441,9 @@ export class WebGLRenderer extends Renderer {
                     scr.y + TILE_HEIGHT < globalState.cameraPosition.y ||
                     scr.x >= globalState.cameraPosition.x + SCREEN_WIDTH ||
                     scr.y >= globalState.cameraPosition.y + SCREEN_HEIGHT
-                )
+                ) {
                     continue
+                }
 
                 // TODO: uses hack
                 const texture = this.getTextureFromHack(img)
@@ -453,17 +469,22 @@ export class WebGLRenderer extends Renderer {
     }
 
     renderFloor(floor: TileMap): void {
-        if (Config.engine.doFloorLighting) this.renderLitFloor(floor)
-        else this.drawTileMap(floor, 0)
+        if (Config.engine.doFloorLighting) {
+            this.renderLitFloor(floor)
+        } else {
+            this.drawTileMap(floor, 0)
+        }
     }
 
     renderObject(obj: Obj): void {
         const renderInfo = this.objectRenderInfo(obj)
-        if (!renderInfo || !renderInfo.visible) return
+        if (!renderInfo || !renderInfo.visible) {
+            return
+        }
         this.renderFrame(
             obj.art,
-            renderInfo.x,
-            renderInfo.y,
+            renderInfo.x - globalState.cameraPosition.x,
+            renderInfo.y - globalState.cameraPosition.y,
             renderInfo.uniformFrameWidth,
             renderInfo.uniformFrameHeight,
             renderInfo.artInfo.totalFrames,
@@ -499,7 +520,7 @@ export class WebGLRenderer extends Renderer {
         gl.uniform1f(this.uNumFramesLocation, totalFrames)
         gl.uniform1f(this.uFrameLocation, frame)
 
-        gl.uniform2f(this.offsetLocation, x - globalState.cameraPosition.x, y - globalState.cameraPosition.y)
+        gl.uniform2f(this.offsetLocation, x, y)
         gl.uniform2f(this.uScaleLocation, width, height)
 
         gl.drawArrays(gl.TRIANGLES, 0, 6)

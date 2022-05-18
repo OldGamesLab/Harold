@@ -15,27 +15,35 @@
 import globalState from './globalState.js'
 import { Config } from './config.js'
 
-export function lazyLoadImage(art: string, callback?: (x: any) => void, isHeartImg?: boolean) {
+export function lazyLoadImage(art: string, callback?: (x: HTMLImageElement) => void) {
     if (globalState.images[art] !== undefined) {
-        if (callback) callback(isHeartImg ? globalState.images[art] : globalState.images[art])
+        if (callback) {
+            callback(globalState.images[art])
+        }
         return
     }
 
     if (globalState.lazyAssetLoadingQueue[art] !== undefined) {
-        if (callback) globalState.lazyAssetLoadingQueue[art]!.push(callback)
+        if (callback) {
+            globalState.lazyAssetLoadingQueue[art].push(callback)
+        }
         return
     }
 
-    if (Config.engine.doLogLazyLoads) console.log('lazy loading ' + art + '...')
+    if (Config.engine.doLogLazyLoads) {
+        console.log('lazy loading ' + art + '...')
+    }
 
     globalState.lazyAssetLoadingQueue[art] = callback ? [callback] : []
 
-    var img = new Image()
+    const img = new Image()
     img.onload = function () {
         globalState.images[art] = img
-        var callbacks = globalState.lazyAssetLoadingQueue[art]
+        const callbacks = globalState.lazyAssetLoadingQueue[art]
         if (callbacks !== undefined) {
-            for (var i = 0; i < callbacks.length; i++) callbacks[i](globalState.images[art])
+            for (let i = 0; i < callbacks.length; i++) {
+                callbacks[i](globalState.images[art])
+            }
             globalState.lazyAssetLoadingQueue[art] = undefined
         }
     }

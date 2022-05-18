@@ -23,6 +23,7 @@ import { lazyLoadImage } from './images.js'
 import { Obj } from './object.js'
 import { tileFromScreen } from './tile.js'
 import { Config } from './config.js'
+import { WindowFrame } from './ui.js'
 
 // Abstract game renderer
 
@@ -45,7 +46,8 @@ export const SCREEN_WIDTH: number = Config.ui.screenWidth
 export const SCREEN_HEIGHT: number = Config.ui.screenHeight
 
 export class Renderer {
-    objects: Obj[]
+    private windows: WindowFrame[] = []
+    private objects: Obj[]
     roofTiles: TileMap
     floorTiles: TileMap
 
@@ -53,6 +55,10 @@ export class Renderer {
         this.roofTiles = roof
         this.floorTiles = floor
         this.objects = objects
+    }
+
+    addWindow(window: WindowFrame) {
+        this.windows.push(window)
     }
 
     render(): void {
@@ -82,13 +88,29 @@ export class Renderer {
         )
         //var mouseTile = tileFromScreen(mousePos[0] + cameraX, mousePos[1] + cameraY)
 
-        if (Config.ui.showFloor) this.renderFloor(this.floorTiles)
+        if (Config.ui.showFloor) {
+            this.renderFloor(this.floorTiles)
+        }
         if (Config.ui.showCursor) {
             const scr = hexToScreen(mouseHex.x, mouseHex.y)
-            this.renderImage('hex_outline', scr.x - 16, scr.y - 12, 32, 16)
+            this.renderImage(
+                'hex_outline',
+                scr.x - 16 - globalState.cameraPosition.x,
+                scr.y - 12 - globalState.cameraPosition.y,
+                32,
+                16
+            )
         }
-        if (Config.ui.showObjects) this.renderObjects(this.objects)
-        if (Config.ui.showRoof) this.renderRoof(this.roofTiles)
+        if (Config.ui.showObjects) {
+            this.renderObjects(this.objects)
+        }
+        if (Config.ui.showRoof) {
+            this.renderRoof(this.roofTiles)
+        }
+
+        for (const window of this.windows.filter((w) => w.showing)) {
+            this.renderWindow(window)
+        }
 
         if (globalState.inCombat) {
             const whose = globalState.combat.inPlayerTurn
@@ -125,7 +147,9 @@ export class Renderer {
 
         for (let i = 0; i < globalState.floatMessages.length; i++) {
             const bbox = objectBoundingBox(globalState.floatMessages[i].obj)
-            if (bbox === null) continue
+            if (bbox === null) {
+                continue
+            }
             heart.ctx.fillStyle = globalState.floatMessages[i].color
             const centerX = bbox.x - bbox.w / 2 - globalState.cameraPosition.x
             this.renderText(globalState.floatMessages[i].msg, centerX, bbox.y - globalState.cameraPosition.y - 16)
@@ -147,9 +171,13 @@ export class Renderer {
         }
 
         const info = globalState.imageInfo[obj.art]
-        if (info === undefined) throw 'No image map info for: ' + obj.art
+        if (info === undefined) {
+            throw 'No image map info for: ' + obj.art
+        }
 
-        if (!(obj.orientation in info.frameOffsets)) obj.orientation = 0 // ...
+        if (!(obj.orientation in info.frameOffsets)) {
+            obj.orientation = 0
+        } // ...
         const frameInfo = info.frameOffsets[obj.orientation][obj.frame]
         const dirOffset = info.directionOffsets[obj.orientation]
 
@@ -173,8 +201,9 @@ export class Renderer {
             scrY + frameInfo.h < globalState.cameraPosition.y ||
             scrX >= globalState.cameraPosition.x + SCREEN_WIDTH ||
             scrY >= globalState.cameraPosition.y + SCREEN_HEIGHT
-        )
-            visible = false // out of screen bounds, no need to draw
+        ) {
+            visible = false
+        } // out of screen bounds, no need to draw
 
         const spriteFrameNum = info.numFrames * obj.orientation + obj.frame
         const sx = spriteFrameNum * info.frameWidth
@@ -195,9 +224,14 @@ export class Renderer {
 
     renderObjects(objs: Obj[]) {
         for (const obj of objs) {
-            if (!Config.ui.showWalls && obj.type === 'wall') continue
-            if (obj.outline) this.renderObjectOutlined(obj)
-            else this.renderObject(obj)
+            if (!Config.ui.showWalls && obj.type === 'wall') {
+                continue
+            }
+            if (obj.outline) {
+                this.renderObjectOutlined(obj)
+            } else {
+                this.renderObject(obj)
+            }
         }
     }
 
@@ -216,6 +250,9 @@ export class Renderer {
         this.renderObject(obj)
     }
     renderObject(obj: Obj): void {}
+    renderWindow(window: WindowFrame): void {
+        this.renderImage(window.background, window.position.x, window.position.y, window.width, window.height)
+    }
 }
 
 export function centerCamera(around: Point) {
@@ -226,15 +263,18 @@ export function centerCamera(around: Point) {
 
 export function objectOnScreen(obj: Obj): boolean {
     const bbox = objectBoundingBox(obj)
-    if (bbox === null) return false
+    if (bbox === null) {
+        return false
+    }
 
     if (
         bbox.x + bbox.w < globalState.cameraPosition.x ||
         bbox.y + bbox.h < globalState.cameraPosition.y ||
         bbox.x >= globalState.cameraPosition.x + SCREEN_WIDTH ||
         bbox.y >= globalState.cameraPosition.y + SCREEN_HEIGHT
-    )
+    ) {
         return false
+    }
     return true
 }
 
@@ -242,7 +282,9 @@ export function objectTransparentAt(obj: Obj, position: Point) {
     const frame = obj.frame !== undefined ? obj.frame : 0
     const sx = globalState.imageInfo[obj.art].frameOffsets[obj.orientation][frame].sx
 
-    if (!globalState.tempCanvasCtx) throw Error()
+    if (!globalState.tempCanvasCtx) {
+        throw Error()
+    }
 
     globalState.tempCanvasCtx.clearRect(0, 0, 1, 1) // clear previous color
     globalState.tempCanvasCtx.drawImage(globalState.images[obj.art], sx + position.x, position.y, 1, 1, 0, 0, 1, 1)
@@ -255,17 +297,24 @@ export function objectTransparentAt(obj: Obj, position: Point) {
 export function objectBoundingBox(obj: Obj): BoundingBox | null {
     const scr = hexToScreen(obj.position.x, obj.position.y)
 
-    if (globalState.images[obj.art] === undefined)
+    if (globalState.images[obj.art] === undefined) {
         // no art
         return null
+    }
 
     const info = globalState.imageInfo[obj.art]
-    if (info === undefined) throw 'No image map info for: ' + obj.art
+    if (info === undefined) {
+        throw 'No image map info for: ' + obj.art
+    }
 
     let frameIdx = 0
-    if (obj.frame !== undefined) frameIdx += obj.frame
+    if (obj.frame !== undefined) {
+        frameIdx += obj.frame
+    }
 
-    if (!(obj.orientation in info.frameOffsets)) obj.orientation = 0 // ...
+    if (!(obj.orientation in info.frameOffsets)) {
+        obj.orientation = 0
+    } // ...
     const frameInfo = info.frameOffsets[obj.orientation][frameIdx]
     const dirOffset = info.directionOffsets[obj.orientation]
     const offsetX = Math.floor(frameInfo.w / 2) - dirOffset.x - frameInfo.ox
@@ -282,12 +331,17 @@ export function getObjectUnderCursor(p: (obj: Obj) => boolean) {
     const objects = globalState.gMap.getObjects()
     for (let i = objects.length - 1; i > 0; i--) {
         const bbox = objectBoundingBox(objects[i])
-        if (bbox === null) continue
-        if (pointInBoundingBox(mousePosition, bbox))
+        if (bbox === null) {
+            continue
+        }
+        if (pointInBoundingBox(mousePosition, bbox)) {
             if (p === undefined || p(objects[i]) === true) {
                 const mouseRel = { x: mousePosition.x - bbox.x, y: mousePosition.y - bbox.y }
-                if (!objectTransparentAt(objects[i], mouseRel)) return objects[i]
+                if (!objectTransparentAt(objects[i], mouseRel)) {
+                    return objects[i]
+                }
             }
+        }
     }
 
     return null

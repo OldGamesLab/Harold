@@ -22,7 +22,7 @@ import globalState from './globalState.js'
 import { GameMap } from './map.js'
 import { Player } from './player.js'
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from './renderer.js'
-import { SaveLoad } from './saveload.js'
+import { saveLoadInit } from './saveload.js'
 import { initUI, uiLog } from './ui.js'
 import { Worldmap } from './worldmap.js'
 
@@ -43,9 +43,13 @@ export function initGame() {
 
         globalState.gMap.loadMap(location.search.slice(1))
     } // load starting map
-    else globalState.gMap.loadMap('artemple')
+    else {
+        globalState.gMap.loadMap('artemple')
+    }
 
-    if (Config.engine.doCombat === true) CriticalEffects.loadTable()
+    if (Config.engine.doCombat === true) {
+        CriticalEffects.loadTable()
+    }
 
     document.oncontextmenu = () => false
     const $cnv = document.getElementById('cnv')!
@@ -61,7 +65,7 @@ export function initGame() {
     globalState.tempCanvas.height = SCREEN_HEIGHT
     globalState.tempCanvasCtx = globalState.tempCanvas.getContext('2d')
 
-    SaveLoad.init()
+    saveLoadInit()
 
     Worldmap.init()
 

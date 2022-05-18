@@ -68,12 +68,16 @@ function isPassiveSkill(skill: Skills): boolean {
 function playerUseSkill(skill: Skills, obj: Obj): void {
     console.log('use skill %o on %o', skill, obj)
 
-    if (!obj && !isPassiveSkill(skill)) throw 'trying to use non-passive skill without a target'
+    if (!obj && !isPassiveSkill(skill)) {
+        throw 'trying to use non-passive skill without a target'
+    }
 
     if (!isPassiveSkill(skill)) {
         // use the skill on the object
         Scripting.useSkillOn(globalState.player, getSkillID(skill), obj)
-    } else console.log('passive skills are not implemented')
+    } else {
+        console.log('passive skills are not implemented')
+    }
 }
 
 export function playerUse() {
@@ -89,7 +93,9 @@ export function playerUse() {
     if (globalState.uiMode === UIMode.useSkill) {
         // using a skill on object
         obj = getObjectUnderCursor((_: Obj) => true) // obj might not be usable, so select non-usable ones too
-        if (!obj) return
+        if (!obj) {
+            return
+        }
         try {
             playerUseSkill(globalState.skillMode, obj)
         } finally {
@@ -118,7 +124,7 @@ export function playerUse() {
             if (!globalState.player.walkTo(mouseHex, Config.engine.doAlwaysRun, undefined, maxWalkingDist)) {
                 console.log('Cannot walk there')
             } else {
-                if (!globalState.player.AP.subtractMoveAP(globalState.player.path.path.length - 1))
+                if (!globalState.player.AP.subtractMoveAP(globalState.player.path.path.length - 1)) {
                     throw (
                         'subtraction issue: has AP: ' +
                         globalState.player.AP.getAvailableMoveAP() +
@@ -127,17 +133,22 @@ export function playerUse() {
                         ' and maxDist was:' +
                         maxWalkingDist
                     )
+                }
             }
         }
 
         // Walking out of combat
-        if (!globalState.player.walkTo(mouseHex, Config.engine.doAlwaysRun)) console.log('Cannot walk there')
+        if (!globalState.player.walkTo(mouseHex, Config.engine.doAlwaysRun)) {
+            console.log('Cannot walk there')
+        }
 
         return
     }
 
     if (obj.type === 'critter') {
-        if (obj === globalState.player) return // can't use yourself
+        if (obj === globalState.player) {
+            return
+        } // can't use yourself
 
         if (globalState.inCombat && !who.dead) {
             // attack a critter
@@ -161,7 +172,9 @@ export function playerUse() {
 
             if (weapon.weapon!.isCalled()) {
                 let art = 'art/critters/hmjmpsna' // default art
-                if (who.hasAnimation('called-shot')) art = who.getAnimation('called-shot')
+                if (who.hasAnimation('called-shot')) {
+                    art = who.getAnimation('called-shot')
+                }
 
                 console.log('art: %s', art)
 
@@ -184,7 +197,9 @@ export function playerUse() {
     const callback = function () {
         globalState.player.clearAnim()
 
-        if (!obj) throw Error()
+        if (!obj) {
+            throw Error()
+        }
 
         // if there's an object under the cursor, use it
         if (obj.type === 'critter') {
@@ -204,12 +219,19 @@ export function playerUse() {
             } else if (who.dead === true) {
                 // loot a dead body
                 uiLoot(obj)
-            } else console.log('Cannot talk to/loot that critter')
-        } else obj.use(globalState.player)
+            } else {
+                console.log('Cannot talk to/loot that critter')
+            }
+        } else {
+            obj.use(globalState.player)
+        }
     }
 
-    if (Config.engine.doInfiniteUse === true) callback()
-    else globalState.player.walkInFrontOf(obj.position, callback)
+    if (Config.engine.doInfiniteUse === true) {
+        callback()
+    } else {
+        globalState.player.walkInFrontOf(obj.position, callback)
+    }
 }
 
 window.onload = async function () {
@@ -231,8 +253,11 @@ window.onload = async function () {
     globalState.renderer.init()
 
     // initialize audio engine
-    if (Config.engine.doAudio) globalState.audioEngine = new HTMLAudioEngine()
-    else globalState.audioEngine = new NullAudioEngine()
+    if (Config.engine.doAudio) {
+        globalState.audioEngine = new HTMLAudioEngine()
+    } else {
+        globalState.audioEngine = new NullAudioEngine()
+    }
 
     // initialize cached data
 
@@ -269,34 +294,50 @@ window.onload = async function () {
 }
 
 heart.mousepressed = (x: number, y: number, btn: string) => {
-    if (globalState.isInitializing || globalState.isLoading || globalState.isWaitingOnRemote) return
-    else if (btn === 'l') playerUse()
-    else if (btn === 'r') {
+    if (globalState.isInitializing || globalState.isLoading || globalState.isWaitingOnRemote) {
+        return
+    } else if (btn === 'l') {
+        playerUse()
+    } else if (btn === 'r') {
         // item context menu
         const obj = getObjectUnderCursor((obj) => obj.isSelectable)
-        if (obj) uiContextMenu(obj, { clientX: x, clientY: y })
+        if (obj) {
+            uiContextMenu(obj, { clientX: x, clientY: y })
+        }
     }
 }
 
 heart.keydown = (k: string) => {
-    if (globalState.isLoading === true) return
+    if (globalState.isLoading === true) {
+        return
+    }
     const mousePos = heart.mouse.getPosition()
     const mouseHex = hexFromScreen(
         mousePos[0] + globalState.cameraPosition.x,
         mousePos[1] + globalState.cameraPosition.y
     )
 
-    if (k === Config.controls.cameraDown) globalState.cameraPosition.y += 15
-    if (k === Config.controls.cameraRight) globalState.cameraPosition.x += 15
-    if (k === Config.controls.cameraLeft) globalState.cameraPosition.x -= 15
-    if (k === Config.controls.cameraUp) globalState.cameraPosition.y -= 15
+    if (k === Config.controls.cameraDown) {
+        globalState.cameraPosition.y += 15
+    }
+    if (k === Config.controls.cameraRight) {
+        globalState.cameraPosition.x += 15
+    }
+    if (k === Config.controls.cameraLeft) {
+        globalState.cameraPosition.x -= 15
+    }
+    if (k === Config.controls.cameraUp) {
+        globalState.cameraPosition.y -= 15
+    }
     if (k === Config.controls.elevationDown) {
-        if (globalState.currentElevation - 1 >= 0)
+        if (globalState.currentElevation - 1 >= 0) {
             globalState.gMap.changeElevation(globalState.currentElevation - 1, true)
+        }
     }
     if (k === Config.controls.elevationUp) {
-        if (globalState.currentElevation + 1 < globalState.gMap.numLevels)
+        if (globalState.currentElevation + 1 < globalState.gMap.numLevels) {
             globalState.gMap.changeElevation(globalState.currentElevation + 1, true)
+        }
     }
     if (k === Config.controls.showRoof) {
         Config.ui.showRoof = !Config.ui.showRoof
@@ -307,7 +348,9 @@ heart.keydown = (k: string) => {
     if (k === Config.controls.showObjects) {
         Config.ui.showObjects = !Config.ui.showObjects
     }
-    if (k === Config.controls.showWalls) Config.ui.showWalls = !Config.ui.showWalls
+    if (k === Config.controls.showWalls) {
+        Config.ui.showWalls = !Config.ui.showWalls
+    }
     if (k === Config.controls.talkTo) {
         const critter = globalState.gMap.critterAtPosition(mouseHex)
         if (critter) {
@@ -371,7 +414,9 @@ heart.keydown = (k: string) => {
     }
 
     if (k === Config.controls.combat) {
-        if (!Config.engine.doCombat) return
+        if (!Config.engine.doCombat) {
+            return
+        }
         if (globalState.inCombat === true && globalState.combat.inPlayerTurn === true) {
             console.log('[TURN]')
             globalState.combat.nextTurn()
@@ -389,7 +434,9 @@ heart.keydown = (k: string) => {
         const obj = globalState.gMap.objectsAtPosition(mouseHex)[0]
         if (obj !== undefined) {
             const hit = globalState.gMap.hexLinecast(globalState.player.position, obj.position)
-            if (!hit) return
+            if (!hit) {
+                return
+            }
             console.log('hit obj: ' + hit.art)
         }
     }
@@ -410,18 +457,28 @@ heart.keydown = (k: string) => {
         }
     }
 
-    if (k === 'h') globalState.player.move(mouseHex)
+    if (k === 'h') {
+        globalState.player.move(mouseHex)
+    }
 
     if (k === Config.controls.kill) {
         const critter = globalState.gMap.critterAtPosition(mouseHex)
-        if (critter) critterKill(critter, globalState.player)
+        if (critter) {
+            critterKill(critter, globalState.player)
+        }
     }
 
-    if (k === Config.controls.worldmap) uiWorldMap()
+    if (k === Config.controls.worldmap) {
+        uiWorldMap()
+    }
 
-    if (k === Config.controls.saveKey) uiSaveLoad(true)
+    if (k === Config.controls.saveKey) {
+        uiSaveLoad(true)
+    }
 
-    if (k === Config.controls.loadKey) uiSaveLoad(false)
+    if (k === Config.controls.loadKey) {
+        uiSaveLoad(false)
+    }
 
     //if(k == calledShotKey)
     //	uiCalledShot()
@@ -435,15 +492,22 @@ function changeCursor(image: string) {
 }
 
 heart.update = function () {
-    if (globalState.isInitializing || globalState.isWaitingOnRemote) return
-    else if (globalState.isLoading) {
+    if (globalState.isInitializing || globalState.isWaitingOnRemote) {
+        return
+    } else if (globalState.isLoading) {
         if (globalState.loadingAssetsLoaded === globalState.loadingAssetsTotal) {
             globalState.isLoading = false
-            if (globalState.loadingLoadedCallback) globalState.loadingLoadedCallback()
-        } else return
+            if (globalState.loadingLoadedCallback) {
+                globalState.loadingLoadedCallback()
+            }
+        } else {
+            return
+        }
     }
 
-    if (globalState.uiMode !== UIMode.none) return
+    if (globalState.uiMode !== UIMode.none) {
+        return
+    }
     const time = window.performance.now()
 
     if (time - globalState._lastFPSTime >= 500) {
@@ -453,19 +517,30 @@ heart.update = function () {
 
     if (globalState.gameHasFocus) {
         const mousePos = heart.mouse.getPosition()
-        if (mousePos[0] <= Config.ui.scrollPadding) globalState.cameraPosition.x -= 15
-        if (mousePos[0] >= SCREEN_WIDTH - Config.ui.scrollPadding) globalState.cameraPosition.x += 15
+        if (mousePos[0] <= Config.ui.scrollPadding) {
+            globalState.cameraPosition.x -= 15
+        }
+        if (mousePos[0] >= SCREEN_WIDTH - Config.ui.scrollPadding) {
+            globalState.cameraPosition.x += 15
+        }
 
-        if (mousePos[1] <= Config.ui.scrollPadding) globalState.cameraPosition.y -= 15
-        if (mousePos[1] >= SCREEN_HEIGHT - Config.ui.scrollPadding) globalState.cameraPosition.y += 15
+        if (mousePos[1] <= Config.ui.scrollPadding) {
+            globalState.cameraPosition.y -= 15
+        }
+        if (mousePos[1] >= SCREEN_HEIGHT - Config.ui.scrollPadding) {
+            globalState.cameraPosition.y += 15
+        }
 
         if (time >= globalState.lastMousePickTime + 750) {
             // every .75 seconds, check the object under the cursor
             globalState.lastMousePickTime = time
 
             const obj = getObjectUnderCursor((obj) => obj.isSelectable)
-            if (obj !== null) changeCursor('pointer')
-            else changeCursor('auto')
+            if (obj !== null) {
+                changeCursor('pointer')
+            } else {
+                changeCursor('auto')
+            }
         }
 
         for (let i = 0; i < globalState.floatMessages.length; i++) {
@@ -519,8 +594,9 @@ heart.update = function () {
                 !(<Critter>obj).dead &&
                 !obj.inAnim() &&
                 obj._script
-            )
+            ) {
                 Scripting.updateCritter(obj._script, obj as Critter)
+            }
         }
 
         obj.updateAnim()
@@ -528,7 +604,9 @@ heart.update = function () {
 }
 
 heart.draw = () => {
-    if (globalState.isWaitingOnRemote) return
+    if (globalState.isWaitingOnRemote) {
+        return
+    }
     return globalState.renderer.render()
 }
 
@@ -556,12 +634,16 @@ export function useElevator(): void {
         }
     }
 
-    if (elevatorStub === null) throw "couldn't find elevator stub near " + center.x + ', ' + center.y
+    if (elevatorStub === null) {
+        throw "couldn't find elevator stub near " + center.x + ', ' + center.y
+    }
 
     console.log('elevator type: ' + elevatorStub.extra.type + ', ' + 'level: ' + elevatorStub.extra.level)
 
     const elevator = getElevator(elevatorStub.extra.type)
-    if (!elevator) throw 'no elevator: ' + elevatorStub.extra.type
+    if (!elevator) {
+        throw 'no elevator: ' + elevatorStub.extra.type
+    }
 
     uiElevator(elevator)
 }

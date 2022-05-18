@@ -32,15 +32,21 @@ class Timer {
 
 class Graphics {
     rectangle(mode: string, x: number, y: number, w: number, h: number) {
-        if (mode === 'fill') heart.ctx.fillRect(x, y, w, h)
-        else heart.ctx.strokeRect(x, y, w, h)
+        if (mode === 'fill') {
+            heart.ctx.fillRect(x, y, w, h)
+        } else {
+            heart.ctx.strokeRect(x, y, w, h)
+        }
     }
 
     circle(mode: string, x: number, y: number, radius: number) {
         heart.ctx.beginPath()
         heart.ctx.arc(x, y, radius, 0, Math.PI * 2, false)
-        if (mode === 'fill') heart.ctx.fill()
-        else heart.ctx.stroke()
+        if (mode === 'fill') {
+            heart.ctx.fill()
+        } else {
+            heart.ctx.stroke()
+        }
     }
 
     line(x1: number, y1: number, x2: number, y2: number) {
@@ -48,28 +54,6 @@ class Graphics {
         heart.ctx.moveTo(x1, y1)
         heart.ctx.lineTo(x2, y2)
         heart.ctx.stroke()
-    }
-
-    polygon(mode: string, vertices: number[]) {
-        if (vertices.length === undefined) vertices = Array.prototype.slice.call(arguments, 1)
-
-        if (vertices.length <= 2) return
-
-        if (vertices.length % 2 !== 0) {
-            throw "heart.graphics.polygon: number of vertices isn't even," + " meaning you don't have x,y pairs"
-        }
-
-        heart.ctx.beginPath()
-        heart.ctx.moveTo(vertices[0], vertices[1])
-        for (var i = 2; i < vertices.length; i += 2) {
-            heart.ctx.lineTo(vertices[i], vertices[i + 1])
-        }
-
-        if (mode === 'fill') heart.ctx.fill()
-        else {
-            heart.ctx.lineTo(vertices[0], vertices[1]) // close the polygon
-            heart.ctx.stroke()
-        }
     }
 
     print(text: string, x: number, y: number) {
@@ -104,7 +88,7 @@ class Graphics {
     newImage(src: string, callback: (img: HTMLImageElement) => void) {
         /* load an image */
         /* XXX: does not handle errors */
-        var img = new Image()
+        const img = new Image()
         heart._imagesLoading.push(img)
         img.onload = function () {
             heart._imagesLoading.splice(heart._imagesLoading.indexOf(img), 1) /* remove img from the loading sequence */
@@ -169,13 +153,13 @@ class Mouse {
 
 class Heart {
     _lastTick: number | undefined = undefined /* time of the last tick */
-    _dt: number = 0 /* time since last tick in seconds */
-    _fps: number = 0 /* frames per second */
-    _frameAccum: number = 0 /* time accumulated between frames */
-    _targetFPS: number = 30 /* the target FPS cap */
+    _dt = 0 /* time since last tick in seconds */
+    _fps = 0 /* frames per second */
+    _frameAccum = 0 /* time accumulated between frames */
+    _targetFPS = 30 /* the target FPS cap */
     _targetTickTime: number | undefined = undefined /* 1000 / _targetFPS (milliseconds to aim for) */
-    _numFrames: number = 0 /* used for FPS counting (number of frames since last FPS count) */
-    _lastFPSTime: number = 0 /* used for FPS counting (time the last FPS count was done) */
+    _numFrames = 0 /* used for FPS counting (number of frames since last FPS count) */
+    _lastFPSTime = 0 /* used for FPS counting (time the last FPS count was done) */
     _bg = { r: 127, g: 127, b: 127 } /* background color */
     _size = { w: 800, h: 600 } /* size of viewport */
     _imagesLoading: HTMLImageElement[] = [] /* for synchronous image loading */
@@ -199,7 +183,6 @@ class Heart {
     update: (time: number) => void
     draw: () => void
     focus: (isFocused: boolean) => void
-    quit: () => any
 
     _init() {
         /* if we're waiting on images to load, spinlock */
@@ -208,34 +191,46 @@ class Heart {
             return
         }
 
-        if (heart.canvas === undefined || heart.ctx === undefined) alert('no canvas')
+        if (heart.canvas === undefined || heart.ctx === undefined) {
+            alert('no canvas')
+        }
 
-        var rect = heart.canvas.getBoundingClientRect()
+        const rect = heart.canvas.getBoundingClientRect()
         heart._canvasOffset.x = rect.left
         heart._canvasOffset.y = rect.top
 
         /* register for mouse-related events (pertaining to the canvas) */
         heart.canvas.onmousedown = (e) => {
-            var btn = heart._mouseButtonName(e.which)
+            const btn = heart._mouseButtonName(e.which)
             this.mouse._btnState[btn] = true
-            if (heart.mousepressed) heart.mousepressed(e.pageX, e.pageY, btn)
+            if (heart.mousepressed) {
+                heart.mousepressed(e.pageX, e.pageY, btn)
+            }
         }
 
         heart.canvas.onmouseup = function (e) {
-            var btn = heart._mouseButtonName(e.which)
+            const btn = heart._mouseButtonName(e.which)
             heart.mouse._btnState[btn] = false
-            if (heart.mousereleased) heart.mousereleased(e.pageX, e.pageY, btn)
+            if (heart.mousereleased) {
+                heart.mousereleased(e.pageX, e.pageY, btn)
+            }
         }
 
         heart.canvas.onmousemove = function (e) {
             heart.mouse._pos = { x: e.pageX - heart._canvasOffset.x, y: e.pageY - heart._canvasOffset.y }
-            if (heart.mousemoved) heart.mousemoved(e.pageX, e.pageY)
+            if (heart.mousemoved) {
+                heart.mousemoved(e.pageX, e.pageY)
+            }
         }
 
         /* keypressed and keyreleased are aliases to
 			 keydown and keyup, respectively. */
-        if (heart.keydown === undefined) heart.keydown = heart.keypressed
-        if (heart.keyup === undefined) heart.keyup = heart.keyreleased
+        if (heart.keydown === undefined) {
+            heart.keydown = heart.keypressed
+        }
+        if (heart.keyup === undefined) {
+            heart.keyup = heart.keyreleased
+        }
 
         heart._lastTick = window.performance.now()
         heart.timer.setTargetFPS(heart._targetFPS)
@@ -253,32 +248,40 @@ class Heart {
             heart._numFrames++
             heart._frameAccum = Math.min(heart._frameAccum, heart._targetTickTime)
 
-            var deltaFPSTime = time - heart._lastFPSTime
+            const deltaFPSTime = time - heart._lastFPSTime
             if (deltaFPSTime >= 1000) {
                 heart._fps = ((heart._numFrames / deltaFPSTime) * 1000) | 0
                 heart._lastFPSTime = time
                 heart._numFrames = 0
             }
 
-            if (heart.update) heart.update(heart._dt / 1000)
+            if (heart.update) {
+                heart.update(heart._dt / 1000)
+            }
 
             if (heart._bg) {
                 heart.ctx.fillStyle = 'rgb(' + heart._bg.r + ',' + heart._bg.g + ',' + heart._bg.b + ')'
                 heart.ctx.fillRect(0, 0, heart._size.w, heart._size.h)
             }
 
-            if (heart.draw) heart.draw()
+            if (heart.draw) {
+                heart.draw()
+            }
         }
 
         window.requestAnimationFrame(heart._tick)
     }
 
     attach(canvas: string) {
-        var el = document.getElementById(canvas)
-        if (!el) return false
+        const el = document.getElementById(canvas)
+        if (!el) {
+            return false
+        }
         heart.canvas = el as HTMLCanvasElement
         heart.ctx = heart.canvas.getContext('2d')
-        if (!heart.ctx) alert("couldn't get canvas context")
+        if (!heart.ctx) {
+            alert("couldn't get canvas context")
+        }
 
         return true
     }
@@ -321,28 +324,29 @@ class Heart {
 // XXX: we need a keymap, since browsers decide on being annoying and
 // not having a consistent keymap. (also, this won't work with special characters.)
 window.onkeydown = function (e) {
-    var c = heart._getKeyChar(e.keyCode)
+    const c = heart._getKeyChar(e.keyCode)
     heart._keysDown[c] = true
-    if (heart.keydown !== undefined) heart.keydown(c)
+    if (heart.keydown !== undefined) {
+        heart.keydown(c)
+    }
 }
 
 window.onkeyup = function (e) {
-    var c = heart._getKeyChar(e.keyCode)
+    const c = heart._getKeyChar(e.keyCode)
     heart._keysDown[c] = false
-    if (heart.keyup !== undefined) heart.keyup(c)
+    if (heart.keyup !== undefined) {
+        heart.keyup(c)
+    }
 }
 
-window.onfocus = function (e) {
-    if (heart.focus) heart.focus(true)
+window.onfocus = function () {
+    if (heart.focus) {
+        heart.focus(true)
+    }
 }
-window.onblur = function (e) {
-    if (heart.focus) heart.focus(false)
-}
-
-window.onbeforeunload = function (e) {
-    if (heart.quit) {
-        var ret = heart.quit()
-        if (ret) return ret
+window.onblur = function () {
+    if (heart.focus) {
+        heart.focus(false)
     }
 }
 
