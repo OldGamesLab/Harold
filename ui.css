@@ -22,12 +22,12 @@ body {
 }
 
 .disable-selection {
-    /* disable text selections */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  /* disable text selections */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 #game-container {
@@ -40,7 +40,8 @@ body {
 /* canvas overlay */
 #overlay-container {
   position: absolute;
-  left: 0px; top: 0px;
+  left: 0px;
+  top: 0px;
   color: white;
   font-family: monospace;
   font-size: 8pt;
@@ -56,12 +57,14 @@ body {
 
 #fpsOverlay {
   position: absolute;
-  right: 10px; top: 5px;
+  right: 10px;
+  top: 5px;
 }
 
 #bar {
   position: absolute;
-  left: 80px; /* (canvas width - 640) / 2 */
+  left: 80px;
+  /* (canvas width - 640) / 2 */
   bottom: 0px;
   width: 640px;
   height: 99px;
@@ -69,128 +72,157 @@ body {
 }
 
 #endContainer {
-    position: absolute;
-    /*left: 578px; top: 36px;*/
-    bottom: 2px; right: 2px;
-    width: 57px; height: 58px;
-    background-image: url("art/intrface/endanim.png");
-    /*background-position: -228px;*/
+  position: absolute;
+  /*left: 578px; top: 36px;*/
+  bottom: 2px;
+  right: 2px;
+  width: 57px;
+  height: 58px;
+  background-image: url("art/intrface/endanim.png");
+  /*background-position: -228px;*/
 
-    /* animation for the end turn/combat button */
-    /* 1 second long, 5 frames, alternates forward/reverse */
-    animation: endAnimation 1s steps(5) infinite;
-    animation-fill-mode: forwards;
-    animation-direction: alternate;
+  /* animation for the end turn/combat button */
+  /* 1 second long, 5 frames, alternates forward/reverse */
+  animation: endAnimation 1s steps(5) infinite;
+  animation-fill-mode: forwards;
+  animation-direction: alternate;
 
-    /* vendor prefixes because the Web sucks */
-    -webkit-animation: endAnimation 1s steps(5) infinite;
-    -webkit-animation-fill-mode: forwards;
-    -webkit-animation-direction: alternate;
+  /* vendor prefixes because the Web sucks */
+  -webkit-animation: endAnimation 1s steps(5) infinite;
+  -webkit-animation-fill-mode: forwards;
+  -webkit-animation-direction: alternate;
 
-    animation-play-state: paused;
-    -webkit-animation-play-state: paused;
+  animation-play-state: paused;
+  -webkit-animation-play-state: paused;
 }
 
 @keyframes endAnimation {
-   from { background-position: 0px; }
-     to { background-position: -285px; }
+  from {
+    background-position: 0px;
+  }
+
+  to {
+    background-position: -285px;
+  }
 }
 
 @-webkit-keyframes endAnimation {
-   from { background-position: 0px; }
-     to { background-position: -285px; }
+  from {
+    background-position: 0px;
+  }
+
+  to {
+    background-position: -285px;
+  }
 }
 
 #endTurnButton {
-    position: absolute;
-    top: 5px; left: 10px;
-    width: 38px; height: 22px;
-    visibility: hidden;
-    background-image: url("art/intrface/endturnu.png");
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  width: 38px;
+  height: 22px;
+  visibility: hidden;
+  background-image: url("art/intrface/endturnu.png");
 }
 
 #endTurnButton:active {
-    background-image: url("art/intrface/endturnd.png");
+  background-image: url("art/intrface/endturnd.png");
 }
 
 #endCombatButton {
-    position: absolute;
-    top: 27px; left: 10px;
-    width: 38px; height: 22px;
-    visibility: hidden;
-    background-image: url("art/intrface/endcmbtu.png");
+  position: absolute;
+  top: 27px;
+  left: 10px;
+  width: 38px;
+  height: 22px;
+  visibility: hidden;
+  background-image: url("art/intrface/endcmbtu.png");
 }
 
 #endCombatButton:active {
-    background-image: url("art/intrface/endcmbtd.png");
+  background-image: url("art/intrface/endcmbtd.png");
 }
 
 #skilldexButton {
-    position: absolute;
-    left: 522px; top: 5px;
-    width: 22px; height: 21px;
+  position: absolute;
+  left: 522px;
+  top: 5px;
+  width: 22px;
+  height: 21px;
 }
 
 #skilldexButton:active {
-    background-image: url("art/intrface/bigreddn.png");
+  background-image: url("art/intrface/bigreddn.png");
 }
 
 #displayLog {
-    position: absolute;
-    left: 26px; top: 30px;
-    width: 158px; height: 54px;
-    color: #00FF00;
-    font-size: 8pt;
-    overflow: hidden;
+  position: absolute;
+  left: 26px;
+  top: 30px;
+  width: 158px;
+  height: 54px;
+  color: #00FF00;
+  font-size: 8pt;
+  overflow: hidden;
 }
 
 #attackButtonContainer {
-    position: absolute;
-    left: 265px; top: 26px;
-    width: 188px;
-    height: 67px;
+  position: absolute;
+  left: 265px;
+  top: 26px;
+  width: 188px;
+  height: 67px;
 }
 
 #attackButtonCalled {
-    position: absolute;
-    right: 7px; bottom: 7px;
-    width: 18px; height: 18px;
-    background-image: url("art/intrface/bullseye.png");
-    display: none;
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  width: 18px;
+  height: 18px;
+  background-image: url("art/intrface/bullseye.png");
+  display: none;
 }
 
 #attackButtonAP {
-    position: absolute;
-    bottom: 7px; left: 7px;
-    width: 64px; height: 12px;
-    background-image: url("art/intrface/mvepnt.png");
-    background-repeat: no-repeat;
+  position: absolute;
+  bottom: 7px;
+  left: 7px;
+  width: 64px;
+  height: 12px;
+  background-image: url("art/intrface/mvepnt.png");
+  background-repeat: no-repeat;
 }
 
 #attackButtonAPDigit {
-    position: absolute;
-    top: 0px; left: 20px;
-    width: 9px; height: 12px;
-    background-image: url("art/intrface/mvenum.png");
+  position: absolute;
+  top: 0px;
+  left: 20px;
+  width: 9px;
+  height: 12px;
+  background-image: url("art/intrface/mvenum.png");
 }
 
 #attackButtonType {
-    position: absolute;
-    top: 5px; right: 5px;
-    width: 64px; height: 12px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 64px;
+  height: 12px;
 }
 
-#attackButtonWeapon {
-}
+#attackButtonWeapon {}
 
 #attackButtonContainer:active #attackButtonWeapon {
-    /* move weapon image up */
-    transform: translateY(-2px);
+  /* move weapon image up */
+  transform: translateY(-2px);
 }
 
 #attackButton {
   position: absolute;
-  left: 0px; top: 0px;
+  left: 0px;
+  top: 0px;
   width: 188px;
   height: 67px;
   background-image: url("art/intrface/sattkbup.png");
@@ -202,8 +234,10 @@ body {
 
 #inventoryButton {
   position: absolute;
-  left: 213px; top: 40px;
-  width: 32px; height: 21px;
+  left: 213px;
+  top: 40px;
+  width: 32px;
+  height: 21px;
   background-image: url("art/intrface/invbutup.png");
 }
 
@@ -213,8 +247,10 @@ body {
 
 #chrButton {
   position: absolute;
-  left: 526px; top: 59px;
-  width: 41px; height: 19px;
+  left: 526px;
+  top: 59px;
+  width: 41px;
+  height: 19px;
   background-image: url("art/intrface/chaup.png");
 }
 
@@ -225,24 +261,30 @@ body {
 /* inventory box */
 #inventoryBox {
   position: absolute;
-  left: 130px; top: 50px;
-  width: 499px; height: 377px;
+  left: 130px;
+  top: 50px;
+  width: 499px;
+  height: 377px;
   visibility: hidden;
   background-image: url("art/intrface/invbox.png");
 }
 
 #inventoryBoxList {
   position: absolute;
-  left: 40px; top: 40px;
-  width: 70px; height: 300px;
+  left: 40px;
+  top: 40px;
+  width: 70px;
+  height: 300px;
   /*background-color: gray;*/
   overflow: hidden;
 }
 
 #inventoryDoneButton {
   position: absolute;
-  left: 433px; top: 325px;
-  width: 26px; height: 26px;
+  left: 433px;
+  top: 325px;
+  width: 26px;
+  height: 26px;
   background-image: url("art/intrface/menuup.png");
 }
 
@@ -256,50 +298,92 @@ body {
 
 #inventoryBoxItem1, #inventoryBoxItem2, #inventoryBoxArmor {
   position: absolute;
-  width: 90px; height: 64px;
+  width: 90px;
+  height: 64px;
 }
 
-#inventoryBoxItem1 { left: 155px; top: 285px; }
-#inventoryBoxItem2 { left: 245px; top: 285px; }
-#inventoryBoxArmor { left: 155px; top: 180px; }
+#inventoryBoxItem1 {
+  left: 155px;
+  top: 285px;
+}
+
+#inventoryBoxItem2 {
+  left: 245px;
+  top: 285px;
+}
+
+#inventoryBoxArmor {
+  left: 155px;
+  top: 180px;
+}
 
 #inventoryBoxInfo {
   position: absolute;
-  left: 295px; top: 45px;
-  width: 150px; height: 190px;
+  left: 295px;
+  top: 45px;
+  width: 150px;
+  height: 190px;
 }
 
 .number {
   position: absolute;
   /* 0 1 2 3 4 5 6 7 8 9 turn1 turn2 - */
   background-image: url("art/intrface/numbers.png");
-  width: 9px; height: 17px;
+  width: 9px;
+  height: 17px;
 }
 
 #hpNumber {
   position: absolute;
-  left: 472px; top: 40px;
+  left: 472px;
+  top: 40px;
 }
 
 #acNumber {
-position: absolute;
-left: 472px; top: 75px;
+  position: absolute;
+  left: 472px;
+  top: 75px;
 }
 
-#hpDigit1 { left: 0px; }
-#hpDigit2 { left: 9px; }
-#hpDigit3 { left: 18px; }
-#hpDigit4 { left: 27px; }
+#hpDigit1 {
+  left: 0px;
+}
 
-#acDigit1 { left: 0px; }
-#acDigit2 { left: 9px; }
-#acDigit3 { left: 18px; }
-#acDigit4 { left: 27px; }
+#hpDigit2 {
+  left: 9px;
+}
+
+#hpDigit3 {
+  left: 18px;
+}
+
+#hpDigit4 {
+  left: 27px;
+}
+
+#acDigit1 {
+  left: 0px;
+}
+
+#acDigit2 {
+  left: 9px;
+}
+
+#acDigit3 {
+  left: 18px;
+}
+
+#acDigit4 {
+  left: 27px;
+}
 
 #itemContextMenu {
   position: absolute;
-  width: 40px; height: 260px; /* height? */
-  top: 0px; /* this will be overriden by the UI script */
+  width: 40px;
+  height: 260px;
+  /* height? */
+  top: 0px;
+  /* this will be overriden by the UI script */
   background-color: gray;
   visibility: hidden;
   z-index: 10;
@@ -307,34 +391,67 @@ left: 472px; top: 75px;
 
 .itemContextMenuButton {
   /*position: absolute;*/
-  width: 40px; height: 40px;
+  width: 40px;
+  height: 40px;
 }
 
-#context_cancel { background-image: url("art/intrface/canceln.png"); }
-#context_cancel:hover { background-image: url("art/intrface/cancelh.png"); }
+#context_cancel {
+  background-image: url("art/intrface/canceln.png");
+}
 
-#context_use { background-image: url("art/intrface/usegetn.png"); }
-#context_use:hover { background-image: url("art/intrface/usegeth.png"); }
+#context_cancel:hover {
+  background-image: url("art/intrface/cancelh.png");
+}
 
-#context_drop { background-image: url("art/intrface/dropn.png"); }
-#context_drop:hover { background-image: url("art/intrface/droph.png"); }
+#context_use {
+  background-image: url("art/intrface/usegetn.png");
+}
 
-#context_look { background-image: url("art/intrface/lookn.png"); }
-#context_look:hover { background-image: url("art/intrface/lookh.png"); }
+#context_use:hover {
+  background-image: url("art/intrface/usegeth.png");
+}
 
-#context_pickup { background-image: url("art/intrface/dropn.png"); }
-#context_pickup:hover { background-image: url("art/intrface/droph.png"); }
+#context_drop {
+  background-image: url("art/intrface/dropn.png");
+}
 
-#context_talk { background-image: url("art/intrface/talkn.png"); }
-#context_talk:hover { background-image: url("art/intrface/talkh.png"); }
+#context_drop:hover {
+  background-image: url("art/intrface/droph.png");
+}
+
+#context_look {
+  background-image: url("art/intrface/lookn.png");
+}
+
+#context_look:hover {
+  background-image: url("art/intrface/lookh.png");
+}
+
+#context_pickup {
+  background-image: url("art/intrface/dropn.png");
+}
+
+#context_pickup:hover {
+  background-image: url("art/intrface/droph.png");
+}
+
+#context_talk {
+  background-image: url("art/intrface/talkn.png");
+}
+
+#context_talk:hover {
+  background-image: url("art/intrface/talkh.png");
+}
 
 /* bar height is 99
    bottom of screen then is 501 */
 
 #dialogueContainer {
   position: absolute;
-  left: 80px; top: 20px;
-  width: 640px; height: 480px;
+  left: 80px;
+  top: 20px;
+  width: 640px;
+  height: 480px;
 
   visibility: hidden;
   background-image: url("art/intrface/alltlk.png");
@@ -343,8 +460,10 @@ left: 472px; top: 75px;
 
 #dialogueBox {
   position: absolute;
-  left: 0px; top: 300px;
-  width: 640px; height: 190px;
+  left: 0px;
+  top: 300px;
+  width: 640px;
+  height: 190px;
 
   visibility: hidden;
   background-image: url("art/intrface/di_talk.png");
@@ -352,8 +471,10 @@ left: 472px; top: 75px;
 
 #dialogueBoxReply {
   position: absolute;
-  left: 138px; top: 232px;
-  width: 375px; height: 47px;
+  left: 138px;
+  top: 232px;
+  width: 375px;
+  height: 47px;
   color: #00FF00;
   font-size: .75em;
   overflow: hidden;
@@ -361,8 +482,10 @@ left: 472px; top: 75px;
 
 #dialogueBoxTextArea {
   position: absolute;
-  left: 130px; top: 50px;
-  width: 390px; height: 112px;
+  left: 130px;
+  top: 50px;
+  width: 390px;
+  height: 112px;
   color: #00FF00;
   font-size: .75em;
   overflow: auto;
@@ -379,8 +502,10 @@ left: 472px; top: 75px;
 
 #barterBox {
   position: absolute;
-  left: 0px; top: 300px;
-  width: 640px; height: 190px;
+  left: 0px;
+  top: 300px;
+  width: 640px;
+  height: 190px;
 
   visibility: hidden;
   background-image: url("art/intrface/barter.png");
@@ -389,30 +514,46 @@ left: 472px; top: 75px;
 /* barter screen "talk" button */
 #barterTalkButton {
   position: absolute;
-  left: 580px; top: 160px;
-  width: 26px; height: 26px;
+  left: 580px;
+  top: 160px;
+  width: 26px;
+  height: 26px;
   background-image: url("art/intrface/menuup.png");
 }
 
-#barterTalkButton:hover { cursor: pointer; }
-#barterTalkButton:active { background-image: url("art/intrface/menudown.png"); }
+#barterTalkButton:hover {
+  cursor: pointer;
+}
+
+#barterTalkButton:active {
+  background-image: url("art/intrface/menudown.png");
+}
 
 /* barter screen "offer" button */
 #barterOfferButton {
   position: absolute;
-  left: 36px; top: 160px;
-  width: 26px; height: 26px;
+  left: 36px;
+  top: 160px;
+  width: 26px;
+  height: 26px;
   background-image: url("art/intrface/menuup.png");
 }
 
-#barterOfferButton:hover { cursor: pointer; }
-#barterOfferButton:active { background-image: url("art/intrface/menudown.png"); }
+#barterOfferButton:hover {
+  cursor: pointer;
+}
+
+#barterOfferButton:active {
+  background-image: url("art/intrface/menudown.png");
+}
 
 /* left (player) inventory box */
 #barterBoxInventoryLeft {
   position: absolute;
-  left: 110px; top: 40px;
-  width: 70px; height: 130px;
+  left: 110px;
+  top: 40px;
+  width: 70px;
+  height: 130px;
   /*background-color: gray;*/
   overflow: hidden;
 }
@@ -420,8 +561,10 @@ left: 472px; top: 75px;
 /* right (merchant) inventory box */
 #barterBoxInventoryRight {
   position: absolute;
-  left: 470px; top: 40px;
-  width: 70px; height: 130px;
+  left: 470px;
+  top: 40px;
+  width: 70px;
+  height: 130px;
   /*background-color: gray;*/
   overflow: hidden;
 }
@@ -429,8 +572,10 @@ left: 472px; top: 75px;
 /* left (player) bartering table */
 #barterBoxLeft {
   position: absolute;
-  left: 248px; top: 12px;
-  width: 55px; height: 155px;
+  left: 248px;
+  top: 12px;
+  width: 55px;
+  height: 155px;
   /*background-color: gray;*/
   overflow: hidden;
 }
@@ -438,8 +583,10 @@ left: 472px; top: 75px;
 /* right (merchant) bartering table */
 #barterBoxRight {
   position: absolute;
-  left: 330px; top: 12px;
-  width: 55px; height: 155px;
+  left: 330px;
+  top: 12px;
+  width: 55px;
+  height: 155px;
   /*background-color: gray;*/
   overflow: hidden;
 }
@@ -447,7 +594,8 @@ left: 472px; top: 75px;
 /* monetary amount for right (merchant) bartering table */
 #barterBoxRightAmount {
   position: absolute;
-  left: 340px; top: 168px;
+  left: 340px;
+  top: 168px;
   color: white;
   font-size: 0.75em;
 }
@@ -455,7 +603,8 @@ left: 472px; top: 75px;
 /* monetary amount for left (player) bartering table */
 #barterBoxLeftAmount {
   position: absolute;
-  left: 248px; top: 168px;
+  left: 248px;
+  top: 168px;
   color: white;
   font-size: 0.75em;
 }
@@ -463,8 +612,10 @@ left: 472px; top: 75px;
 /* loot box */
 #lootBox {
   position: absolute;
-  left: 80px; top: 20px;
-  width: 537px; height: 376px;
+  left: 80px;
+  top: 20px;
+  width: 537px;
+  height: 376px;
   visibility: hidden;
   background-image: url("art/intrface/loot.png");
 }
@@ -472,170 +623,226 @@ left: 472px; top: 75px;
 /* left loot inventory */
 #lootBoxLeft {
   position: absolute;
-  left: 180px; top: 40px;
-  width: 64px; height: 290px;
+  left: 180px;
+  top: 40px;
+  width: 64px;
+  height: 290px;
   overflow: hidden;
 }
 
 /* right loot inventory */
 #lootBoxRight {
   position: absolute;
-  left: 300px; top: 40px;
-  width: 64px; height: 290px;
+  left: 300px;
+  top: 40px;
+  width: 64px;
+  height: 290px;
   overflow: hidden;
 }
 
 #lootBoxDoneButton {
   position: absolute;
-  left: 475px; top: 325px;
-  width: 26px; height: 26px;
+  left: 475px;
+  top: 325px;
+  width: 26px;
+  height: 26px;
   background-image: url("art/intrface/menuup.png");
 }
 
-#lootBoxDoneButton:hover { cursor: pointer; }
-#lootBoxDoneButton:active { background-image: url("art/intrface/menudown.png"); }
+#lootBoxDoneButton:hover {
+  cursor: pointer;
+}
+
+#lootBoxDoneButton:active {
+  background-image: url("art/intrface/menudown.png");
+}
 
 #lootBoxTakeAllButton {
   position: absolute;
-  left: 430px; top: 205px;
-  width: 39px; height: 41px;
+  left: 430px;
+  top: 205px;
+  width: 39px;
+  height: 41px;
   background-image: url("art/intrface/invmaup.png");
 }
 
-#lootBoxTakeAllButton:hover { cursor: pointer; }
-#lootBoxTakeAllButton:active { background-image: url("art/intrface/invmadn.png"); }
-
-#worldMapContainer {
-    position: absolute;
-    left: 0px; top: 0px;
-    width: 800px; height: 600px;
-    background-color: black;
-    display: none;
+#lootBoxTakeAllButton:hover {
+  cursor: pointer;
 }
 
-#worldMapBox {    
-    position: absolute;
-    left: 80px; top: 60px;
-    width: 640px; height: 480px;
-    background-image: url("art/intrface/wmapbox.png");
+#lootBoxTakeAllButton:active {
+  background-image: url("art/intrface/invmadn.png");
+}
+
+#worldMapContainer {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 800px;
+  height: 600px;
+  background-color: black;
+  display: none;
+}
+
+#worldMapBox {
+  position: absolute;
+  left: 80px;
+  top: 60px;
+  width: 640px;
+  height: 480px;
+  background-image: url("art/intrface/wmapbox.png");
 }
 
 #worldmapViewButton {
-    position: absolute;
-    left: 519px; top: 440px;
-    width: 15px; height: 16px;
-    background-image: url("art/intrface/lilredup.png");
+  position: absolute;
+  left: 519px;
+  top: 440px;
+  width: 15px;
+  height: 16px;
+  background-image: url("art/intrface/lilredup.png");
 }
 
 #worldmapViewButton:active {
-    background-image: url("art/intrface/lilreddn.png");
+  background-image: url("art/intrface/lilreddn.png");
 }
 
 #worldMapWorld {
-    position: absolute;
-    left: 105px; top: 82px;
-    width: 445px; height: 438px;
+  position: absolute;
+  left: 105px;
+  top: 82px;
+  width: 445px;
+  height: 438px;
 }
 
 #areamap {
-    position: absolute;
-    left: 0px; top: 0px;
-    /*overflow: auto;*/
-    overflow: hidden;
-    width: 100%; height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  /*overflow: auto;*/
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 #worldMapLabels {
-    position: absolute;
-    left: 503px; top: 133px;
-    width: 120px; height: 182px;
-    overflow: hidden;
+  position: absolute;
+  left: 503px;
+  top: 133px;
+  width: 120px;
+  height: 182px;
+  overflow: hidden;
 }
 
 #worldMapLabelsBackground {
-    position: absolute;
-    left: -13px; top: -27px;
-    width: 145px; height: 480px;
-    background-image: url("art/intrface/wmtabs.png");
+  position: absolute;
+  left: -13px;
+  top: -27px;
+  width: 145px;
+  height: 480px;
+  background-image: url("art/intrface/wmtabs.png");
 }
 
 .worldMapLabel {
-    position: absolute;
-    left: 3px;
-    width: 110px; height: 24px;
+  position: absolute;
+  left: 3px;
+  width: 110px;
+  height: 24px;
 }
 
 .worldMapLabelImage {
-    position: absolute;
-    left: 21px; top: 2px;
-    width: 82px; height: 18px;
+  position: absolute;
+  left: 21px;
+  top: 2px;
+  width: 82px;
+  height: 18px;
 }
 
 .worldMapLabelButton {
-    position: absolute;
-    left: 0px; top: 2px;
-    width: 15px; height: 16px;
-    background-image: url("art/intrface/lilredup.png");
+  position: absolute;
+  left: 0px;
+  top: 2px;
+  width: 15px;
+  height: 16px;
+  background-image: url("art/intrface/lilredup.png");
 }
 
 .worldMapLabelButton:active {
-    background-image: url("art/intrface/lilreddn.png");
+  background-image: url("art/intrface/lilreddn.png");
 }
 
 .worldmapEntrance {
-    position: absolute;
-    width: 100px;
-    height: 32px;
-    color: #00FF00;
+  position: absolute;
+  width: 100px;
+  height: 32px;
+  color: #00FF00;
 }
 
 .worldmapEntranceHotspot {
-    width: 25px; height: 13px;
-    background-image: url("art/intrface/hotspot1.png");
+  width: 25px;
+  height: 13px;
+  background-image: url("art/intrface/hotspot1.png");
 }
 
 .worldmapEntranceHotspot:active {
-    background-image: url("art/intrface/hotspot2.png");
+  background-image: url("art/intrface/hotspot2.png");
 }
 
 #elevatorBox {
-    position: absolute;
-    width: 230px; height: 284px;
-    left: 285px; top: 158px; /* center */
-    visibility: hidden;
+  position: absolute;
+  width: 230px;
+  height: 284px;
+  left: 285px;
+  top: 158px;
+  /* center */
+  visibility: hidden;
 
-    /* background-image varies per elevator type */
+  /* background-image varies per elevator type */
 }
 
 #elevatorLabel {
-    position: absolute;
-    width: 107px; height: 248px;
-    left: 0px; top: 37px;
-    visibility: hidden;
+  position: absolute;
+  width: 107px;
+  height: 248px;
+  left: 0px;
+  top: 37px;
+  visibility: hidden;
 
-    /* background-image varies per elevator type */
+  /* background-image varies per elevator type */
 }
 
 #elevatorPositioner {
-    /**/
+  /**/
 }
 
 .elevatorButton {
-    position: absolute;
-    width: 48px; height: 50px;
-    left: 16px; /* left/x constant for all elevator buttons, top/y changes */
-    visibility: hidden;
-    background-image: url("art/intrface/ebut_out.png");
+  position: absolute;
+  width: 48px;
+  height: 50px;
+  left: 16px;
+  /* left/x constant for all elevator buttons, top/y changes */
+  visibility: hidden;
+  background-image: url("art/intrface/ebut_out.png");
 }
 
 .elevatorButton:active {
-    background-image: url("art/intrface/ebut_in.png");
+  background-image: url("art/intrface/ebut_in.png");
 }
 
-#elevatorButton1 { top: 42px; }
-#elevatorButton2 { top: 102px; }
-#elevatorButton3 { top: 162px; }
-#elevatorButton4 { top: 222px; }
+#elevatorButton1 {
+  top: 42px;
+}
+
+#elevatorButton2 {
+  top: 102px;
+}
+
+#elevatorButton3 {
+  top: 162px;
+}
+
+#elevatorButton4 {
+  top: 222px;
+}
 
 /* ------- */
 /* world map */
@@ -647,137 +854,230 @@ left: 472px; top: 75px;
 }*/
 
 #worldmap {
-    position: absolute;
-    left: 0px; top: 0px;
-    /*overflow: auto;*/
-    overflow: hidden;
-    width: 100%; height: 100%;
-    /* */
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  /*overflow: auto;*/
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  /* */
 }
 
 #worldmapImage {
-    position: absolute; left: 0px; top: 0px;
-    /*background-image: url("worldmap.png");*/
-    /*width: 525px; height: 450px;*/
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  /*background-image: url("worldmap.png");*/
+  /*width: 525px; height: 450px;*/
 }
 
 .area {
-    position: absolute;
-    z-index: 1;
+  position: absolute;
+  z-index: 1;
 }
 
 .areaLabel {
-    position: absolute;
-    font-family: sans-serif;
-    color: #00FF00;
+  position: absolute;
+  font-family: sans-serif;
+  color: #00FF00;
 }
 
 .areaCircle {
-    position: absolute;
-    /*width: 100px; height: 100px;*/
-    border: 2px solid #00FF00;
-    border-radius: 50%; /* circle */
-    background: #007F00;
-    opacity: 0.25;
+  position: absolute;
+  /*width: 100px; height: 100px;*/
+  border: 2px solid #00FF00;
+  border-radius: 50%;
+  /* circle */
+  background: #007F00;
+  opacity: 0.25;
 }
 
-.areaSize-small { width: 8px; height: 8px; }
-.areaSize-medium { width: 32px; height: 32px; }
-.areaSize-large { width: 64px; height: 64px; }
+.areaSize-small {
+  width: 8px;
+  height: 8px;
+}
+
+.areaSize-medium {
+  width: 32px;
+  height: 32px;
+}
+
+.areaSize-large {
+  width: 64px;
+  height: 64px;
+}
 
 .worldmapSquare {
-    position: absolute;
-    width: 51px; height: 51px;
+  position: absolute;
+  width: 51px;
+  height: 51px;
 }
 
-.worldmapSquare-undiscovered { background-color: black; z-index: 2; }
-.worldmapSquare-discovered { background-color: black; display: none; }
-.worldmapSquare-seen { background-color: black; opacity: 0.5; }
+.worldmapSquare-undiscovered {
+  background-color: black;
+  z-index: 2;
+}
+
+.worldmapSquare-discovered {
+  background-color: black;
+  display: none;
+}
+
+.worldmapSquare-seen {
+  background-color: black;
+  opacity: 0.5;
+}
 
 /* The player marker on the world map. Hidden until travelling. */
 #worldmapPlayer {
-    position: absolute;
-    width: 25px; height: 13px;
-    background-repeat: no-repeat;
-    background-image: url("art/intrface/wmaploc.png");
-    /*visibility: hidden;*/
-    z-index: 100;
+  position: absolute;
+  width: 25px;
+  height: 13px;
+  background-repeat: no-repeat;
+  background-image: url("art/intrface/wmaploc.png");
+  /*visibility: hidden;*/
+  z-index: 100;
 }
 
 /* Target. Changes into a hotspot when reached by the player. */
 #worldmapTarget {
-    position: absolute;
-    width: 25px; height: 13px;
-    background-repeat: no-repeat;           
-    z-index: 100;
+  position: absolute;
+  width: 25px;
+  height: 13px;
+  background-repeat: no-repeat;
+  z-index: 100;
 }
 
 #calledShotBox {
-    position: absolute;
-    left: 135px; top: 135px;
-    width: 504px; height: 309px;
-    display: none;
-    background-image: url("art/intrface/called.png");
+  position: absolute;
+  left: 135px;
+  top: 135px;
+  width: 504px;
+  height: 309px;
+  display: none;
+  background-image: url("art/intrface/called.png");
 }
 
 #calledShotBackground {
-    position: absolute;
-    left: 170px; top: 31px;
-    width: 170px; height: 225px;
-    /*border: 1px solid cyan;*/
-    background-image: url("art/critters/masratna.png");
+  position: absolute;
+  left: 170px;
+  top: 31px;
+  width: 170px;
+  height: 225px;
+  /*border: 1px solid cyan;*/
+  background-image: url("art/critters/masratna.png");
 }
 
 #calledShotCancelBtn {
-    position: absolute;
-    left: 208px; top: 268px;
-    width: 15px; height: 16px;
-    background-image: url("art/intrface/lilredup.png");
+  position: absolute;
+  left: 208px;
+  top: 268px;
+  width: 15px;
+  height: 16px;
+  background-image: url("art/intrface/lilredup.png");
 }
 
 #calledShotCancelBtn:active {
-    background-image: url("art/intrface/lilreddn.png");
+  background-image: url("art/intrface/lilreddn.png");
 }
 
 .calledShotLabel {
-    position: absolute;
-    width: 100px;
-    color: #00FF00;
-    font-size: small;
+  position: absolute;
+  width: 100px;
+  color: #00FF00;
+  font-size: small;
 }
 
 .calledShotLabel:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .calledShotChance {
-    position: absolute;
-    width: 25px; height: 25px;
-    /*border: 1px solid cyan;*/
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  /*border: 1px solid cyan;*/
 }
 
 /* right side of called shot screen */
-#calledShot-torso-chance { right: 26px; top: 35px; }
-#calledShot-torso-label { left: 380px; top: 30px; }
+#calledShot-torso-chance {
+  right: 26px;
+  top: 35px;
+}
 
-#calledShot-groin-chance { right: 26px; top: 102px; }
-#calledShot-groin-label { left: 380px; top: 90px; }
+#calledShot-torso-label {
+  left: 380px;
+  top: 30px;
+}
 
-#calledShot-leftArm-chance { right: 26px; top: 164px; }
-#calledShot-leftArm-label { left: 360px; top: 160px; }
+#calledShot-groin-chance {
+  right: 26px;
+  top: 102px;
+}
 
-#calledShot-leftLeg-chance { right: 26px; top: 230px; }
-#calledShot-leftLeg-label { left: 370px; top: 225px; }
+#calledShot-groin-label {
+  left: 380px;
+  top: 90px;
+}
+
+#calledShot-leftArm-chance {
+  right: 26px;
+  top: 164px;
+}
+
+#calledShot-leftArm-label {
+  left: 360px;
+  top: 160px;
+}
+
+#calledShot-leftLeg-chance {
+  right: 26px;
+  top: 230px;
+}
+
+#calledShot-leftLeg-label {
+  left: 370px;
+  top: 225px;
+}
 
 /* left side */
-#calledShot-head-chance { left: 33px; top: 35px; }
-#calledShot-head-label { left: 75px; top: 30px; }
+#calledShot-head-chance {
+  left: 33px;
+  top: 35px;
+}
 
-#calledShot-eyes-chance { left: 33px; top: 102px; }
-#calledShot-eyes-label { left: 75px; top: 95px; }
+#calledShot-head-label {
+  left: 75px;
+  top: 30px;
+}
 
-#calledShot-rightArm-chance { left: 33px; top: 164px; }
-#calledShot-rightArm-label { left: 75px; top: 160px; }
+#calledShot-eyes-chance {
+  left: 33px;
+  top: 102px;
+}
 
-#calledShot-rightLeg-chance { left: 33px; top: 230px; }
-#calledShot-rightLeg-label { left: 75px; top: 225px; }
+#calledShot-eyes-label {
+  left: 75px;
+  top: 95px;
+}
+
+#calledShot-rightArm-chance {
+  left: 33px;
+  top: 164px;
+}
+
+#calledShot-rightArm-label {
+  left: 75px;
+  top: 160px;
+}
+
+#calledShot-rightLeg-chance {
+  left: 33px;
+  top: 230px;
+}
+
+#calledShot-rightLeg-label {
+  left: 75px;
+  top: 225px;
+}
