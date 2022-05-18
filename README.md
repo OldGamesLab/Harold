@@ -32,6 +32,7 @@ Here is a very rough list of what is known to work:
 
 Some features are more middle ground:
 
+-   Fonts are rendered within HTML elements, which makes it impossible to use native Fallout bitmap fonts. The UI system needs to use the WebGL renderer instead of HTML and DOM for bitmap font rendering to work well.
 -   Combat works at an extremely basic level but not to a great degree (only the SMG and spear is really tested, you cannot swap ammo, etc.)
 -   No equippable armor
 -   The world map is rough and buggy, and on the area screens entrances are misplaced
