@@ -120,7 +120,7 @@ of Harold and are only given to explain the status quo. The technical direction 
 
     A: Because it hasn't been ported to Python yet. If you're willing to contribute, give it a shot: the original Pascal source code is available online.
 
-    Additionally, FFmpeg might be able to transcode ACM audio, so give that a shot. (See #30.)
+    Additionally, FFmpeg might be able to transcode ACM audio, so give that a shot. (See [darkf/darkfo#30](https://github.com/darkf/darkfo/issues/30))
 
 -   **Q:** Why convert all assets up front, why not load them directly?
 
