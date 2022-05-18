@@ -19,7 +19,6 @@ Scripting system/engine for DarkFO
 import { Combat } from './combat.js'
 import { critterDamage, critterKill } from './critter.js'
 import { lookupScriptName } from './data.js'
-import { heart } from './heart.js'
 import {
     hexDirectionTo,
     hexDistance,
@@ -1189,7 +1188,7 @@ export module Scripting {
             globalState.floatMessages.push({
                 msg: msg,
                 obj: this.self_obj as Obj,
-                startTime: heart.timer.getTime(),
+                startTime: window.performance.now(),
                 color: color,
             })
         }

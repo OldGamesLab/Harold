@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import { HTMLAudioEngine, NullAudioEngine } from './audio.js'
-import { CanvasRenderer } from './canvasrenderer.js'
 import { Combat } from './combat.js'
 import { critterKill } from './critter.js'
 import { getElevator } from './data.js'
@@ -216,12 +215,7 @@ heart.load = function () {
     globalState.$fpsOverlay = document.getElementById('fpsOverlay')
 
     // initialize renderer
-    if (Config.engine.renderer === 'canvas') globalState.renderer = new CanvasRenderer()
-    else if (Config.engine.renderer === 'webgl') globalState.renderer = new WebGLRenderer()
-    else {
-        console.error("No renderer backend named '%s'", Config.engine.renderer)
-        throw new Error('Invalid renderer backend')
-    }
+    globalState.renderer = new WebGLRenderer()
 
     globalState.renderer.init()
 
@@ -434,7 +428,7 @@ heart.update = function () {
     }
 
     if (globalState.uiMode !== UIMode.none) return
-    var time = heart.timer.getTime()
+    var time = window.performance.now()
 
     if (time - globalState._lastFPSTime >= 500) {
         globalState.$fpsOverlay!.textContent = 'fps: ' + heart.timer.getFPS()

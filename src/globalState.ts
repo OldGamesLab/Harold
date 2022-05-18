@@ -15,7 +15,6 @@
 import { AudioEngine } from './audio.js'
 import { Combat } from './combat.js'
 import { AreaMap } from './data.js'
-import { HeartImage } from './heart.js'
 import { Point } from './geometry.js'
 import { GameMap, SerializedMap } from './map.js'
 import { Obj } from './object.js'
@@ -99,10 +98,10 @@ export default {
         [name: string]: ((img: any) => void)[] | undefined
     }
 
-    images: { [name: string]: HeartImage } // Image cache
+    images: { [name: string]: HTMLImageElement } // Image cache
     imageInfo: any // Metadata about images (Number of frames, FPS, etc)
     currentElevation: number // current map elevation
-    hexOverlay: HeartImage | null
+    hexOverlay: HTMLImageElement | null
     tempCanvas: HTMLCanvasElement | null // temporary canvas used for detecting single pixels
     tempCanvasCtx: CanvasRenderingContext2D | null // and the context for it
 

@@ -1,4 +1,4 @@
-import { heart, HeartImage } from './heart.js'
+import { heart } from './heart.js'
 import { hexFromScreen } from './geometry.js'
 import globalState from './globalState.js'
 import { Lighting } from './lighting.js'
@@ -62,7 +62,7 @@ export class WebGLRenderer extends Renderer {
         if (this.textures[name] === undefined) {
             if (globalState.images[name] !== undefined) {
                 // generate a new texture
-                return this.newTexture(name, globalState.images[name].img)
+                return this.newTexture(name, globalState.images[name])
             }
             return null
         }
@@ -277,22 +277,6 @@ export class WebGLRenderer extends Renderer {
         return program
     }
 
-    color(r: number, g: number, b: number, a: number = 255): void {
-        //heart.graphics.setColor(r, g, b, a)
-    }
-
-    rectangle(x: number, y: number, w: number, h: number, filled: boolean = true): void {
-        //heart.graphics.rectangle(filled ? "fill" : "stroke", x, y, w, h)
-    }
-
-    text(txt: string, x: number, y: number): void {
-        //heart.graphics.print(txt, x, y)
-    }
-
-    image(img: HTMLImageElement | HeartImage, x: number, y: number, w?: number, h?: number): void {
-        //heart.graphics.draw(img, x, y, w, h)
-    }
-
     clear(r: number, g: number, b: number): void {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
     }
@@ -488,5 +472,9 @@ export class WebGLRenderer extends Renderer {
         gl.uniform2f(this.uScaleLocation, renderInfo.uniformFrameWidth, renderInfo.uniformFrameHeight) // size
 
         gl.drawArrays(gl.TRIANGLES, 0, 6)
+    }
+
+    renderObjectOutlined(obj: Obj): void {
+        this.renderObject(obj)
     }
 }

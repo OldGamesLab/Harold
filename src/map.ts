@@ -19,7 +19,7 @@ import { getCurrentMapInfo, lookupMapName } from './data.js'
 import { Events } from './events.js'
 import { hexInDirectionDistance, hexLine, HEX_GRID_SIZE, Point, pointInBoundingBox } from './geometry.js'
 import globalState from './globalState.js'
-import { heart, HeartImage } from './heart.js'
+import { heart } from './heart.js'
 import { Lightmap } from './lightmap.js'
 import { Critter, deserializeObj, Obj, objFromMapObject } from './object.js'
 import { centerCamera } from './renderer.js'
@@ -278,10 +278,10 @@ export class GameMap {
     }
 
     loadNewMap(mapName: string, startingPosition?: Point, startingElevation?: number, loadedCallback?: () => void) {
-        function load(file: string, callback?: (x: any) => void) {
+        function load(file: string, callback?: (x: HTMLImageElement) => void) {
             if (globalState.images[file] !== undefined) return // don't load more than once
             globalState.loadingAssetsTotal++
-            heart.graphics.newImage(file + '.png', (r: HeartImage) => {
+            heart.graphics.newImage(file + '.png', (r: HTMLImageElement) => {
                 globalState.images[file] = r
                 globalState.loadingAssetsLoaded++
                 if (callback) callback(r)

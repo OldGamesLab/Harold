@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { heart, HeartImage } from './heart.js'
+import { heart } from './heart.js'
 import { BoundingBox, hexFromScreen, hexToScreen, Point, pointInBoundingBox } from './geometry.js'
 import globalState from './globalState.js'
 import { lazyLoadImage } from './images.js'
@@ -210,7 +210,7 @@ export class Renderer {
     color(r: number, g: number, b: number, a: number = 255): void {}
     rectangle(x: number, y: number, w: number, h: number, filled: boolean = true): void {}
     text(txt: string, x: number, y: number): void {}
-    image(img: HTMLImageElement | HeartImage, x: number, y: number, w?: number, h?: number): void {}
+    image(img: HTMLImageElement, x: number, y: number, w?: number, h?: number): void {}
 
     renderRoof(roof: TileMap): void {}
     renderFloor(floor: TileMap): void {}
@@ -247,7 +247,7 @@ export function objectTransparentAt(obj: Obj, position: Point) {
     if (!globalState.tempCanvasCtx) throw Error()
 
     globalState.tempCanvasCtx.clearRect(0, 0, 1, 1) // clear previous color
-    globalState.tempCanvasCtx.drawImage(globalState.images[obj.art].img, sx + position.x, position.y, 1, 1, 0, 0, 1, 1)
+    globalState.tempCanvasCtx.drawImage(globalState.images[obj.art], sx + position.x, position.y, 1, 1, 0, 0, 1, 1)
     var pixelAlpha = globalState.tempCanvasCtx.getImageData(0, 0, 1, 1).data[3]
 
     return pixelAlpha === 0

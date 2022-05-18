@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { HeartImage } from './heart.js'
 import globalState from './globalState.js'
 import { Config } from './config.js'
 
 export function lazyLoadImage(art: string, callback?: (x: any) => void, isHeartImg?: boolean) {
     if (globalState.images[art] !== undefined) {
-        if (callback) callback(isHeartImg ? globalState.images[art] : globalState.images[art].img)
+        if (callback) callback(isHeartImg ? globalState.images[art] : globalState.images[art])
         return
     }
 
@@ -33,7 +32,7 @@ export function lazyLoadImage(art: string, callback?: (x: any) => void, isHeartI
 
     var img = new Image()
     img.onload = function () {
-        globalState.images[art] = new HeartImage(img)
+        globalState.images[art] = img
         var callbacks = globalState.lazyAssetLoadingQueue[art]
         if (callbacks !== undefined) {
             for (var i = 0; i < callbacks.length; i++) callbacks[i](globalState.images[art])

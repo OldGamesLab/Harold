@@ -17,7 +17,6 @@ limitations under the License.
 import { Combat } from './combat.js'
 import { loadAreas, lookupMapFromLookup } from './data.js'
 import { Encounters } from './encounters.js'
-import { heart } from './heart.js'
 import { Point, pointIntersectsCircle } from './geometry.js'
 import globalState from './globalState.js'
 import { createObjectWithPID } from './object.js'
@@ -654,7 +653,7 @@ export module Worldmap {
             if (currentSquare.state !== WORLDMAP_DISCOVERED) setSquareStateAt(squarePos, WORLDMAP_DISCOVERED)
 
             // check for encounters
-            const time = heart.timer.getTime()
+            const time = window.performance.now()
             if (Config.engine.doEncounters === true && time >= lastEncounterCheck + WORLDMAP_ENCOUNTER_CHECK_RATE) {
                 lastEncounterCheck = time
 

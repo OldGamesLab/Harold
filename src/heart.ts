@@ -101,21 +101,21 @@ class Graphics {
         heart._bg = { r: r, g: g, b: b }
     }
 
-    newImage(src: string, callback: (img: HeartImage) => void) {
+    newImage(src: string, callback: (img: HTMLImageElement) => void) {
         /* load an image */
         /* XXX: does not handle errors */
         var img = new Image()
         heart._imagesLoading.push(img)
         img.onload = function () {
             heart._imagesLoading.splice(heart._imagesLoading.indexOf(img), 1) /* remove img from the loading sequence */
-            callback(new HeartImage(img))
+            callback(img)
         }
         img.src = src
     }
 
-    draw(drawable: HeartImage, x: number, y: number) {
-        if (drawable.img !== undefined) {
-            heart.ctx.drawImage(drawable.img, x, y)
+    draw(drawable: HTMLImageElement, x: number, y: number) {
+        if (drawable !== undefined) {
+            heart.ctx.drawImage(drawable, x, y)
         }
     }
 
@@ -202,7 +202,6 @@ class Heart {
     draw: () => void
     focus: (isFocused: boolean) => void
     quit: () => any
-    HeartImage: any
 
     _init() {
         /* if we're waiting on images to load, spinlock */
@@ -319,22 +318,6 @@ class Heart {
         }
 
         return String.fromCharCode(c).toLowerCase()
-    }
-}
-
-export class HeartImage {
-    img: HTMLImageElement
-
-    constructor(img: HTMLImageElement) {
-        this.img = img
-    }
-
-    getWidth() {
-        return this.img.width
-    }
-
-    getHeight() {
-        return this.img.height
     }
 }
 

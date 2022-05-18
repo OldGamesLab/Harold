@@ -22,7 +22,6 @@ export const Config = {
     },
 
     engine: {
-        renderer: 'canvas', // which renderer backend to use ("canvas" or "webgl")
         doSaveDirtyMaps: true, // save dirty maps to in-memory cache?
         doLoadScripts: true, // should we load scripts?
         doUpdateCritters: true, // should we give critters heartbeats?

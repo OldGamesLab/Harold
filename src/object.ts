@@ -17,7 +17,6 @@ limitations under the License.
 import { Weapon } from './critter.js'
 import { getLstId, lookupScriptName } from './data.js'
 import { Events } from './events.js'
-import { heart } from './heart.js'
 import { directionOfDelta, hexDistance, hexesInRadius, hexToScreen, Point } from './geometry.js'
 import globalState from './globalState.js'
 import { lazyLoadImage } from './images.js'
@@ -431,7 +430,7 @@ export class Obj {
 
     updateAnim(): void {
         if (!this.anim) return
-        var time = heart.timer.getTime()
+        var time = window.performance.now()
         var fps = globalState.imageInfo[this.art].fps
         if (fps === 0) fps = 10 // XXX: ?
 
@@ -947,7 +946,7 @@ export class Critter extends Obj {
     }
 
     updateStaticAnim(): void {
-        var time = heart.timer.getTime()
+        var time = window.performance.now()
         var fps = 8 // todo: get FPS from image info
 
         if (time - this.lastFrameTime >= 1000 / fps) {
@@ -965,7 +964,7 @@ export class Critter extends Obj {
         if (!this.anim || this.anim === 'idle') return
         if (animInfo[this.anim].type === 'static') return this.updateStaticAnim()
 
-        var time = heart.timer.getTime()
+        var time = window.performance.now()
         var fps = globalState.imageInfo[this.art].fps
         var targetScreen = hexToScreen(this.path.target.x, this.path.target.y)
 
@@ -1222,7 +1221,7 @@ export class Critter extends Obj {
         this.art = this.getAnimation(this.anim)
         this.animCallback = callback || (() => this.clearAnim())
         this.frame = 0
-        this.lastFrameTime = heart.timer.getTime()
+        this.lastFrameTime = window.performance.now()
         this.shift = { x: 0, y: 0 }
         const dir = directionOfDelta(this.position.x, this.position.y, path[1][0], path[1][1])
         if (dir == null) throw Error()

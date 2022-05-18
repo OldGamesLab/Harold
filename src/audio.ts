@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import { getCurrentMapInfo } from './data.js'
-import { heart } from './heart.js'
 import { getRandomInt } from './util.js'
 
 // Audio engine for handling music and sound effects
@@ -94,7 +93,7 @@ export class HTMLAudioEngine implements AudioEngine {
     }
 
     tick(): void {
-        var time = heart.timer.getTime()
+        var time = window.performance.now()
 
         if (!this.nextSfx) this.nextSfx = this.rollNextSfx()
 
