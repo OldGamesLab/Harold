@@ -52,7 +52,6 @@ export default {
     images: {}, // Image cache
     imageInfo: null, // Metadata about images (Number of frames, FPS, etc)
     currentElevation: 0, // current map elevation
-    hexOverlay: null,
     tempCanvas: null, // temporary canvas used for detecting single pixels
     tempCanvasCtx: null, // and the context for it
 
@@ -101,7 +100,6 @@ export default {
     images: { [name: string]: HTMLImageElement } // Image cache
     imageInfo: any // Metadata about images (Number of frames, FPS, etc)
     currentElevation: number // current map elevation
-    hexOverlay: HTMLImageElement | null
     tempCanvas: HTMLCanvasElement | null // temporary canvas used for detecting single pixels
     tempCanvasCtx: CanvasRenderingContext2D | null // and the context for it
 

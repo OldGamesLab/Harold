@@ -41,7 +41,7 @@ export function objectIsWeapon(obj: any): boolean {
 }
 
 function objectFindItemIndex(obj: Obj, item: Obj): number {
-    for (var i = 0; i < obj.inventory.length; i++) {
+    for (let i = 0; i < obj.inventory.length; i++) {
         if (obj.inventory[i].pid === item.pid) return i
     }
     return -1
@@ -55,7 +55,7 @@ function objectSwapItem(a: Obj, item: Obj, b: Obj, amount: number) {
     // swap item from a -> b
     if (amount === 0) return
 
-    var idx = objectFindItemIndex(a, item)
+    const idx = objectFindItemIndex(a, item)
     if (idx === -1) throw 'item (' + item + ') does not exist in a'
     if (amount !== undefined && amount < item.amount) {
         // just deduct amount from a and give amount to b
@@ -76,12 +76,14 @@ export function objectGetDamageType(obj: any): string {
 
 function useExplosive(obj: Obj, source: Critter): void {
     if (source.isPlayer !== true) return // ?
-    var mins, secs
+    let mins, secs
 
-    while (true) {
-        var time = prompt('Time to detonate?', '1:00')
+    const forever = true
+
+    while (forever) {
+        const time = prompt('Time to detonate?', '1:00')
         if (time === null) return // cancel
-        var s = time.split(':')
+        const s = time.split(':')
         if (s.length !== 2) continue
 
         mins = parseInt(s[0])
@@ -93,7 +95,7 @@ function useExplosive(obj: Obj, source: Critter): void {
 
     // TODO: skill rolls
 
-    var ticks = mins * 60 * 10 + secs * 10 // game ticks until detonation
+    const ticks = mins * 60 * 10 + secs * 10 // game ticks until detonation
 
     console.log('arming explosive for ' + ticks + ' ticks')
 
@@ -110,7 +112,7 @@ function useExplosive(obj: Obj, source: Critter): void {
 }
 
 // Set the object (door/container) open/closed; returns true if possible, false if not (e.g. locked)
-function setObjectOpen(obj: Obj, open: boolean, loot: boolean = true, signalEvent: boolean = true): boolean {
+function setObjectOpen(obj: Obj, open: boolean, loot = true, signalEvent = true): boolean {
     if (!obj.isDoor && !obj.isContainer) return false
 
     // Open/closable doors/containers
@@ -137,7 +139,7 @@ function setObjectOpen(obj: Obj, open: boolean, loot: boolean = true, signalEven
 }
 
 // Toggle the object (door/container) open/closed; returns true if possible, false if not (e.g. locked)
-function toggleObjectOpen(obj: Obj, loot: boolean = true, signalEvent: boolean = true): boolean {
+function toggleObjectOpen(obj: Obj, loot = true, signalEvent = true): boolean {
     return setObjectOpen(obj, !obj.open, loot, signalEvent)
 }
 
@@ -146,11 +148,11 @@ function objectFindIndex(obj: Obj): number {
 }
 
 function objectZCompare(a: Obj, b: Obj): number {
-    var aY = a.position.y
-    var bY = b.position.y
+    const aY = a.position.y
+    const bY = b.position.y
 
-    var aX = a.position.x
-    var bX = b.position.x
+    const aX = a.position.x
+    const bX = b.position.x
 
     if (aY === bY) {
         if (aX < bX) return -1
@@ -167,20 +169,20 @@ function objectZCompare(a: Obj, b: Obj): number {
 }
 
 function objectZOrder(obj: Obj, index: number): void {
-    var oldIdx = index !== undefined ? index : objectFindIndex(obj)
+    const oldIdx = index !== undefined ? index : objectFindIndex(obj)
     if (oldIdx === -1) {
         console.log('objectZOrder: no such object...')
         return
     }
 
     // TOOD: mutable/potentially unsafe usage of getObjects
-    var objects = globalState.gMap.getObjects()
+    const objects = globalState.gMap.getObjects()
 
     objects.splice(oldIdx, 1) // remove the object...
 
-    var inserted = false
-    for (var i = 0; i < objects.length; i++) {
-        var zc = objectZCompare(obj, objects[i])
+    let inserted = false
+    for (let i = 0; i < objects.length; i++) {
+        const zc = objectZCompare(obj, objects[i])
         if (zc === -1) {
             objects.splice(i, 0, obj) // insert at new index
             inserted = true
@@ -230,19 +232,19 @@ export interface SerializedObj {
 }
 
 export class Obj {
-    uid: number = -1 // Unique ID given to all objects, to distinguish objects with the same PIDs
+    uid = -1 // Unique ID given to all objects, to distinguish objects with the same PIDs
 
     pid: number // PID (Prototype IDentifier)
     pidID: number // ID (not type) part of the PID
     type: string = null // TODO: enum // Type of object (critter, item, ...)
     pro: any = null // TODO: pro ref // PRO Object
-    flags: number = 0 // Flags from PRO; may be overriden by map objects
+    flags = 0 // Flags from PRO; may be overriden by map objects
     art: string // TODO: Path // Art path
     frmPID: number = null // Art FID
     orientation: number = null // Direction the object is facing
-    visible: boolean = true // Is the object visible?
-    open: boolean = false // Is the object open? (Mainly for doors)
-    locked: boolean = false // Is the object locked? (Mainly for doors)
+    visible = true // Is the object visible?
+    open = false // Is the object open? (Mainly for doors)
+    locked = false // Is the object locked? (Mainly for doors)
 
     extra: any // TODO
 
@@ -255,9 +257,9 @@ export class Obj {
     invArt: string // Art path used for in-inventory image
 
     anim: any = null // Current animation (TODO: Is this only a string? It should probably be an enum.)
-    animCallback: any = null // Callback when current animation is finished playing
-    frame: number = 0 // Animation frame index
-    lastFrameTime: number = 0 // Time since last animation frame played
+    animCallback: () => void | null = null // Callback when current animation is finished playing
+    frame = 0 // Animation frame index
+    lastFrameTime = 0 // Time since last animation frame played
 
     // Frame shift/offset
     // For static animations, this is just null (effectively just the frame offset as declared in the .FRM),
@@ -268,13 +270,13 @@ export class Obj {
     // Outline color, if outlined
     outline: string | null = null
 
-    amount: number = 1 // TODO: Where does this belong? Items and misc seem to have it, or is Money an Item?
+    amount = 1 // TODO: Where does this belong? Items and misc seem to have it, or is Money an Item?
     position: Point = { x: -1, y: -1 }
     inventory: Obj[] = []
 
     // TODO: verify
-    lightRadius: number = 0
-    lightIntensity: number = 655
+    lightRadius = 0
+    lightIntensity = 655
 
     static fromPID(pid: number, sid?: number): Obj {
         return Obj.fromPID_(new Obj(), pid, sid)
@@ -282,10 +284,10 @@ export class Obj {
 
     static fromPID_<T extends Obj>(obj: T, pid: number, sid?: number): T {
         console.log(`fromPID: pid=${pid}, sid=${sid}`)
-        var pidType = (pid >> 24) & 0xff
-        var pidID = pid & 0xffff
+        const pidType = (pid >> 24) & 0xff
+        const pidID = pid & 0xffff
 
-        var pro: any = loadPRO(pid, pidID) // TODO: any
+        const pro: any = loadPRO(pid, pidID) // TODO: any
         obj.type = getPROTypeName(pidType)
         obj.pid = pid
         obj.pro = pro
@@ -297,7 +299,7 @@ export class Obj {
             obj.subtype = getPROSubTypeName(pro.extra.subtype)
             obj.name = getMessage('pro_item', pro.textID)
 
-            var invPID = pro.extra.invFRM & 0xffff
+            const invPID = pro.extra.invFRM & 0xffff
             console.log(`invPID: ${invPID}, pid=${pid}`)
             if (invPID !== 0xffff) obj.invArt = 'art/inven/' + getLstId('art/inven/inven', invPID).split('.')[0]
         }
@@ -310,11 +312,11 @@ export class Obj {
         return obj
     }
 
-    static fromMapObject(mobj: any, deserializing: boolean = false): Obj {
+    static fromMapObject(mobj: any, deserializing = false): Obj {
         return Obj.fromMapObject_(new Obj(), mobj, deserializing)
     }
 
-    static fromMapObject_<T extends Obj>(obj: T, mobj: any, deserializing: boolean = false): T {
+    static fromMapObject_<T extends Obj>(obj: T, mobj: any, deserializing = false): T {
         // Load an Obj from a map object
         //console.log("fromMapObject: %o", mobj)
         if (mobj.uid) obj.uid = mobj.uid
@@ -361,8 +363,8 @@ export class Obj {
             this.inventory = this.inventory.map((obj) => objFromMapObject(obj))
     }
 
-    loadScript(sid: number = -1): void {
-        var scriptName = null
+    loadScript(sid = -1): void {
+        let scriptName = null
 
         if (sid >= 0) scriptName = lookupScriptName(sid)
         else if (this.script) scriptName = this.script
@@ -387,7 +389,7 @@ export class Obj {
         if (scriptName != null) {
             if (Config.engine.doLogScriptLoads) console.log('loadScript: loading %s (sid=%d)', scriptName, sid)
             // console.trace();
-            var script = Scripting.loadScript(scriptName)
+            const script = Scripting.loadScript(scriptName)
             if (!script) {
                 console.log('loadScript: load script failed for %s (sid=%d)', scriptName, sid)
             } else {
@@ -414,7 +416,7 @@ export class Obj {
 
     // Moves the object; returns `true` if successfully moved,
     // or `false` if interrupted (such as by an exit grid).
-    move(position: Point, curIdx?: number, signalEvents: boolean = true): boolean {
+    move(position: Point, curIdx?: number, signalEvents = true): boolean {
         this.position = position
 
         if (signalEvents) Events.emit('objMove', { obj: this, position })
@@ -430,8 +432,8 @@ export class Obj {
 
     updateAnim(): void {
         if (!this.anim) return
-        var time = window.performance.now()
-        var fps = globalState.imageInfo[this.art].fps
+        const time = window.performance.now()
+        let fps = globalState.imageInfo[this.art].fps
         if (fps === 0) fps = 10 // XXX: ?
 
         if (time - this.lastFrameTime >= 1000 / fps) {
@@ -496,9 +498,9 @@ export class Obj {
         // object without the script, and then re-load it for a new instance.
         if (this._script) {
             console.log('cloning an object with a script: %o', this)
-            var _script = this._script
+            const _script = this._script
             this._script = null
-            var obj = deepClone(this)
+            const obj = deepClone(this)
             this._script = _script
             obj.loadScript() // load new copy of the script
             return obj
@@ -508,8 +510,8 @@ export class Obj {
         return deepClone(this)
     }
 
-    addInventoryItem(item: Obj, count: number = 1): void {
-        for (var i = 0; i < this.inventory.length; i++) {
+    addInventoryItem(item: Obj, count = 1): void {
+        for (let i = 0; i < this.inventory.length; i++) {
             if (this.inventory[i].approxEq(item)) {
                 this.inventory[i].amount += count
                 return
@@ -542,7 +544,7 @@ export class Obj {
 
     get money(): number {
         const MONEY_PID = 41
-        for (var i = 0; i < this.inventory.length; i++) {
+        for (let i = 0; i < this.inventory.length; i++) {
             if (this.inventory[i].pid === MONEY_PID) {
                 return this.inventory[i].amount
             }
@@ -611,8 +613,8 @@ export class Obj {
         if (this.isDoor || this.isContainer) {
             toggleObjectOpen(this, true, true)
         } else if (this.isStairs) {
-            var destTile = fromTileNum(this.extra.destination & 0xffff)
-            var destElev = ((this.extra.destination >> 28) & 0xf) >> 1
+            const destTile = fromTileNum(this.extra.destination & 0xffff)
+            const destElev = ((this.extra.destination >> 28) & 0xf) >> 1
 
             if (this.extra.destinationMap === -1 && this.extra.destination !== -1) {
                 // same map, new destination
@@ -634,9 +636,9 @@ export class Obj {
                 globalState.gMap.loadMapByID(this.extra.destinationMap, destTile, destElev)
             }
         } else if (this.isLadder) {
-            var isTop = this.pro.extra.subType === 4
-            var level = isTop ? globalState.currentElevation + 1 : globalState.currentElevation - 1
-            var destTile = fromTileNum(this.extra.destination & 0xffff)
+            const isTop = this.pro.extra.subType === 4
+            const level = isTop ? globalState.currentElevation + 1 : globalState.currentElevation - 1
+            const destTile = fromTileNum(this.extra.destination & 0xffff)
             // TODO: destination also supposedly contains elevation and map
             console.log('ladder (' + (isTop ? 'top' : 'bottom') + ' -> level ' + level + ')')
             globalState.player.position = destTile
@@ -650,8 +652,8 @@ export class Obj {
     }
 
     explode(source: Obj, minDmg: number, maxDmg: number): void {
-        var damage = maxDmg
-        var explosion = createObjectWithPID(makePID(5 /* misc */, 14 /* Explosion */), -1)
+        const damage = maxDmg
+        const explosion = createObjectWithPID(makePID(5 /* misc */, 14 /* Explosion */), -1)
         explosion.position.x = this.position.x
         explosion.position.y = this.position.y
         ;(<any>this).dmgType = 'explosion' // TODO: any (WeaponObj?)
@@ -664,10 +666,10 @@ export class Obj {
                 globalState.gMap.destroyObject(explosion)
 
                 // damage critters in a radius
-                var hexes = hexesInRadius(this.position, 8 /* explosion radius */) // TODO: radius
-                for (var i = 0; i < hexes.length; i++) {
-                    var objs = globalState.gMap.objectsAtPosition(hexes[i])
-                    for (var j = 0; j < objs.length; j++) {
+                const hexes = hexesInRadius(this.position, 8 /* explosion radius */) // TODO: radius
+                for (let i = 0; i < hexes.length; i++) {
+                    const objs = globalState.gMap.objectsAtPosition(hexes[i])
+                    for (let j = 0; j < objs.length; j++) {
                         if (objs[j].type === 'critter') console.log('todo: damage', (<Critter>objs[j]).name)
 
                         Scripting.damage(objs[j], this, this /*source*/, damage)
@@ -689,8 +691,8 @@ export class Obj {
 
     drop(source: Obj) {
         // drop inventory object obj from source
-        var removed = false
-        for (var i = 0; i < source.inventory.length; i++) {
+        let removed = false
+        for (let i = 0; i < source.inventory.length; i++) {
             if (source.inventory[i].pid === this.pid) {
                 removed = true
                 source.inventory.splice(i, 1) // remove from source
@@ -700,7 +702,7 @@ export class Obj {
         if (!removed) throw "dropObject: couldn't find object"
 
         globalState.gMap.addObject(this) // add to objects
-        var idx = globalState.gMap.getObjects().length - 1 // our new index
+        const idx = globalState.gMap.getObjects().length - 1 // our new index
         this.move({ x: source.position.x, y: source.position.y }, idx)
     }
 
@@ -740,7 +742,7 @@ class Item extends Obj {
         return Obj.fromPID_(new Item(), pid, sid)
     }
 
-    static fromMapObject(mobj: any, deserializing: boolean = false): Item {
+    static fromMapObject(mobj: any, deserializing = false): Item {
         return Obj.fromMapObject_(new Item(), mobj, deserializing)
     }
 
@@ -751,7 +753,7 @@ class Item extends Obj {
         if (this.pro === null) return
         this.name = getMessage('pro_item', this.pro.textID)
 
-        var invPID = this.pro.extra.invFRM & 0xffff
+        const invPID = this.pro.extra.invFRM & 0xffff
         if (invPID !== 0xffff) this.invArt = 'art/inven/' + getLstId('art/inven/inven', invPID).split('.')[0]
     }
 }
@@ -763,7 +765,7 @@ export class WeaponObj extends Item {
         return Obj.fromPID_(new WeaponObj(), pid, sid)
     }
 
-    static fromMapObject(mobj: any, deserializing: boolean = false): WeaponObj {
+    static fromMapObject(mobj: any, deserializing = false): WeaponObj {
         return Obj.fromMapObject_(new WeaponObj(), mobj, deserializing)
     }
 
@@ -782,7 +784,7 @@ class Scenery extends Obj {
         return Obj.fromPID_(new Scenery(), pid, sid)
     }
 
-    static fromMapObject(mobj: any, deserializing: boolean = false): Scenery {
+    static fromMapObject(mobj: any, deserializing = false): Scenery {
         return Obj.fromMapObject_(new Scenery(), mobj, deserializing)
     }
 
@@ -809,7 +811,7 @@ class Door extends Scenery {
         return Obj.fromPID_(new Door(), pid, sid)
     }
 
-    static fromMapObject(mobj: any, deserializing: boolean = false): Door {
+    static fromMapObject(mobj: any, deserializing = false): Door {
         return Obj.fromMapObject_(new Door(), mobj, deserializing)
     }
 
@@ -821,38 +823,38 @@ class Door extends Scenery {
 
 // Creates an object of a relevant type from a Prototype ID and an optional Script ID
 export function createObjectWithPID(pid: number, sid?: number) {
-    var pidType = (pid >> 24) & 0xff
+    const pidType = (pid >> 24) & 0xff
     if (pidType == 1)
         // critter
         return Critter.fromPID(pid, sid)
     else if (pidType == 0) {
         // item
-        var pro = loadPRO(pid, pid & 0xffff)
+        const pro = loadPRO(pid, pid & 0xffff)
         if (pro && pro.extra && pro.extra.subType == 3) return WeaponObj.fromPID(pid, sid)
         else return Item.fromPID(pid, sid)
     } else if (pidType == 2) {
         // scenery
-        var pro = loadPRO(pid, pid & 0xffff)
+        const pro = loadPRO(pid, pid & 0xffff)
         if (pro && pro.extra && pro.extra.subType == 0) return Door.fromPID(pid, sid)
         else return Scenery.fromPID(pid, sid)
     } else return Obj.fromPID(pid, sid)
 }
 
-export function objFromMapObject(mobj: any, deserializing: boolean = false) {
-    var pid = mobj.pid
-    var pidType = (pid >> 24) & 0xff
+export function objFromMapObject(mobj: any, deserializing = false) {
+    const pid = mobj.pid
+    const pidType = (pid >> 24) & 0xff
 
     if (pidType == 1)
         // critter
         return Critter.fromMapObject(mobj, deserializing)
     else if (pidType == 0) {
         // item
-        var pro = mobj.pro || loadPRO(pid, pid & 0xffff)
+        const pro = mobj.pro || loadPRO(pid, pid & 0xffff)
         if (pro && pro.extra && pro.extra.subType == 3) return WeaponObj.fromMapObject(mobj, deserializing)
         else return Item.fromMapObject(mobj, deserializing)
     } else if (pidType == 2) {
         // scenery
-        var pro = mobj.pro || loadPRO(pid, pid & 0xffff)
+        const pro = mobj.pro || loadPRO(pid, pid & 0xffff)
         if (pro && pro.extra && pro.extra.subType == 0) return Door.fromMapObject(mobj, deserializing)
         else return Scenery.fromMapObject(mobj, deserializing)
     } else return Obj.fromMapObject(mobj, deserializing)
@@ -874,19 +876,19 @@ export class Critter extends Obj {
     path: any = null // Holds pathfinding objects
     AP: ActionPoints | null = null
 
-    aiNum: number = -1 // AI packet number
-    teamNum: number = -1 // AI team number (TODO: implement this)
+    aiNum = -1 // AI packet number
+    teamNum = -1 // AI team number (TODO: implement this)
     ai: AI | null = null // AI packet
-    hostile: boolean = false // Currently engaging an enemy?
+    hostile = false // Currently engaging an enemy?
 
-    isPlayer: boolean = false // Is this critter the player character?
-    dead: boolean = false // Is this critter dead?
+    isPlayer = false // Is this critter the player character?
+    dead = false // Is this critter dead?
 
     static fromPID(pid: number, sid?: number): Critter {
         return Obj.fromPID_(new Critter(), pid, sid)
     }
 
-    static fromMapObject(mobj: any, deserializing: boolean = false): Critter {
+    static fromMapObject(mobj: any, deserializing = false): Critter {
         const obj = Obj.fromMapObject_(new Critter(), mobj, deserializing)
 
         if (deserializing) {
@@ -895,8 +897,7 @@ export class Critter extends Obj {
             // console.trace();
 
             for (const prop of SERIALIZED_CRITTER_PROPS) {
-                // console.log(`loading prop ${prop} from SerializedCritter = ${mobj[prop]}`);
-                ;(<any>obj)[prop] = mobj[prop]
+                (obj as any)[prop] = mobj[prop]
             }
 
             if (mobj.stats) {
@@ -927,7 +928,7 @@ export class Critter extends Obj {
         // initialize weapons
         this.inventory.forEach((inv) => {
             if (inv.subtype === 'weapon') {
-                var w = <WeaponObj>inv
+                const w = <WeaponObj>inv
                 if (this.leftHand === undefined) {
                     if (w.weapon!.canEquip(this)) this.leftHand = w
                 } else if (this.rightHand === undefined) {
@@ -946,8 +947,8 @@ export class Critter extends Obj {
     }
 
     updateStaticAnim(): void {
-        var time = window.performance.now()
-        var fps = 8 // todo: get FPS from image info
+        const time = window.performance.now()
+        const fps = 8 // todo: get FPS from image info
 
         if (time - this.lastFrameTime >= 1000 / fps) {
             this.frame++
@@ -964,12 +965,12 @@ export class Critter extends Obj {
         if (!this.anim || this.anim === 'idle') return
         if (animInfo[this.anim].type === 'static') return this.updateStaticAnim()
 
-        var time = window.performance.now()
-        var fps = globalState.imageInfo[this.art].fps
-        var targetScreen = hexToScreen(this.path.target.x, this.path.target.y)
+        const time = window.performance.now()
+        const fps = globalState.imageInfo[this.art].fps
+        const targetScreen = hexToScreen(this.path.target.x, this.path.target.y)
 
-        var partials = getAnimPartialActions(this.art, this.anim)
-        var currentPartial = partials.actions[this.path.partial]
+        const partials = getAnimPartialActions(this.art, this.anim)
+        const currentPartial = partials.actions[this.path.partial]
 
         if (time - this.lastFrameTime >= 1000 / fps) {
             // advance frame
@@ -991,7 +992,7 @@ export class Critter extends Obj {
                 // we're already on its startFrame which coincides with the current endFrame,
                 // so we add one to get to the next frame.
                 // unless we're the first one, in which case just 0.
-                var nextFrame = partials.actions[this.path.partial].startFrame + 1
+                let nextFrame = partials.actions[this.path.partial].startFrame + 1
                 if (this.path.partial === 0) nextFrame = 0
                 this.frame = nextFrame
 
@@ -999,8 +1000,8 @@ export class Critter extends Obj {
                 this.shift = { x: 0, y: 0 }
 
                 // move to new path hex
-                var pos = this.path.path[this.path.index++]
-                var hex = { x: pos[0], y: pos[1] }
+                let pos = this.path.path[this.path.index++]
+                const hex = { x: pos[0], y: pos[1] }
 
                 if (!this.move(hex)) return
                 if (!this.path)
@@ -1018,11 +1019,11 @@ export class Critter extends Obj {
                 // advance frame
                 this.frame++
 
-                var info = globalState.imageInfo[this.art]
+                const info = globalState.imageInfo[this.art]
                 if (info === undefined) throw 'No image map info for: ' + this.art
 
                 // add the new frame's offset to our shift
-                var frameInfo = info.frameOffsets[this.orientation][this.frame]
+                const frameInfo = info.frameOffsets[this.orientation][this.frame]
                 this.shift.x += frameInfo.x
                 this.shift.y += frameInfo.y
             }
@@ -1032,7 +1033,7 @@ export class Critter extends Obj {
                 // TODO: better logging system
                 //console.log("target reached")
 
-                var callback = this.animCallback
+                const callback = this.animCallback
                 this.clearAnim()
 
                 if (callback) callback()
@@ -1048,13 +1049,13 @@ export class Critter extends Obj {
         return !!(this.path || this.animCallback)
     }
 
-    move(position: Point, curIdx?: number, signalEvents: boolean = true): boolean {
+    move(position: Point, curIdx?: number, signalEvents = true): boolean {
         if (!super.move(position, curIdx, signalEvents)) return false
 
         if (Config.engine.doSpatials !== false) {
-            var hitSpatials = hitSpatialTrigger(position)
-            for (var i = 0; i < hitSpatials.length; i++) {
-                var spatial = hitSpatials[i]
+            const hitSpatials = hitSpatialTrigger(position)
+            for (let i = 0; i < hitSpatials.length; i++) {
+                const spatial = hitSpatials[i]
                 console.log(
                     'triggered spatial ' +
                         spatial.script +
@@ -1096,17 +1097,17 @@ export class Critter extends Obj {
     }
 
     getAnimation(anim: string): string {
-        var base = this.getBase()
+        const base = this.getBase()
 
         // try weapon animation first
-        var weaponObj = this.equippedWeapon
+        const weaponObj = this.equippedWeapon
         if (weaponObj !== null && Config.engine.doUseWeaponModel === true) {
             if (!weaponObj.weapon) throw Error()
-            var wepAnim = weaponObj.weapon.getAnim(anim)
+            const wepAnim = weaponObj.weapon.getAnim(anim)
             if (wepAnim) return base + wepAnim
         }
 
-        var wep = 'a'
+        const wep = 'a'
         switch (anim) {
             case 'attack':
                 console.log('default attack animation instead of weapon animation.')
@@ -1160,7 +1161,7 @@ export class Critter extends Obj {
         return this.pro.extra.killType
     }
 
-    staticAnimation(anim: string, callback?: () => void, waitForLoad: boolean = true): void {
+    staticAnimation(anim: string, callback?: () => void, waitForLoad = true): void {
         this.art = this.getAnimation(anim)
         this.frame = 0
         this.lastFrameTime = 0
@@ -1177,7 +1178,7 @@ export class Critter extends Obj {
     }
 
     get directionalOffset(): Point {
-        var info = globalState.imageInfo[this.art]
+        const info = globalState.imageInfo[this.art]
         if (info === undefined) throw 'No image map info for: ' + this.art
         return info.directionOffsets[this.orientation]
     }
@@ -1215,7 +1216,7 @@ export class Critter extends Obj {
         if (running && !this.canRun()) running = false
 
         // set up animation properties
-        var actualTarget = { x: path[path.length - 1][0], y: path[path.length - 1][1] }
+        const actualTarget = { x: path[path.length - 1][0], y: path[path.length - 1][1] }
         this.path = { path: path, index: 1, target: actualTarget, partial: 0 }
         this.anim = running ? 'run' : 'walk'
         this.art = this.getAnimation(this.anim)
@@ -1232,7 +1233,7 @@ export class Critter extends Obj {
     }
 
     walkInFrontOf(targetPos: Point, callback?: () => void): boolean {
-        var path = globalState.gMap.recalcPath(this.position, targetPos, false)
+        const path = globalState.gMap.recalcPath(this.position, targetPos, false)
         if (path.length === 0)
             // invalid path
             return false
@@ -1243,10 +1244,10 @@ export class Critter extends Obj {
         }
         path.pop() // we don't want targetPos in the path
 
-        var target = path[path.length - 1]
+        const target = path[path.length - 1]
         targetPos = { x: target[0], y: target[1] }
 
-        var running = Config.engine.doAlwaysRun
+        let running = Config.engine.doAlwaysRun
         if (hexDistance(this.position, targetPos) > 5) running = true
 
         //console.log("path: %o, callback %o", path, callback)
@@ -1257,8 +1258,7 @@ export class Critter extends Obj {
         const obj = <SerializedCritter>super.serialize()
 
         for (const prop of SERIALIZED_CRITTER_PROPS) {
-            // console.log(`saving prop ${prop} from SerializedCritter = ${this[prop]}`);
-            ;(<any>obj)[prop] = (<any>this)[prop]
+            (obj as any)[prop] = (this as any)[prop]
         }
 
         return obj
@@ -1318,10 +1318,10 @@ function getAnimPartialActions(art: string, anim: string): { movement: number; a
 
     if (numPartials === 0) numPartials = 1
 
-    var delta = Math.floor(globalState.imageInfo[art].numFrames / numPartials)
-    var startFrame = 0
-    var endFrame = delta
-    for (var i = 0; i < numPartials; i++) {
+    const delta = Math.floor(globalState.imageInfo[art].numFrames / numPartials)
+    let startFrame = 0
+    let endFrame = delta
+    for (let i = 0; i < numPartials; i++) {
         partialActions.actions.push({ startFrame: startFrame, endFrame: endFrame, step: i })
         startFrame += delta
         endFrame += delta // ?
@@ -1335,11 +1335,11 @@ function getAnimPartialActions(art: string, anim: string): { movement: number; a
 }
 
 function getAnimDistance(art: string): number {
-    var info = globalState.imageInfo[art]
+    const info = globalState.imageInfo[art]
     if (info === undefined) throw 'no image info for ' + art
 
-    var firstShift = info.frameOffsets[0][0].ox
-    var lastShift = info.frameOffsets[1][info.numFrames - 1].ox
+    const firstShift = info.frameOffsets[0][0].ox
+    const lastShift = info.frameOffsets[1][info.numFrames - 1].ox
 
     // distance = (shift x of last frame) - (shift x of first frame(?) + 16) / 32
     return Math.floor((lastShift - firstShift + 16) / 32)

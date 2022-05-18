@@ -78,10 +78,13 @@ function playerUseSkill(skill: Skills, obj: Obj): void {
 
 export function playerUse() {
     // TODO: playerUse should take an object
-    var mousePos = heart.mouse.getPosition()
-    var mouseHex = hexFromScreen(mousePos[0] + globalState.cameraPosition.x, mousePos[1] + globalState.cameraPosition.y)
+    const mousePos = heart.mouse.getPosition()
+    const mouseHex = hexFromScreen(
+        mousePos[0] + globalState.cameraPosition.x,
+        mousePos[1] + globalState.cameraPosition.y
+    )
     let obj = getObjectUnderCursor((obj) => obj.isSelectable)
-    var who = <Critter>obj
+    const who = <Critter>obj
 
     if (globalState.uiMode === UIMode.useSkill) {
         // using a skill on object
@@ -101,24 +104,24 @@ export function playerUse() {
         // walk to the destination if there is no usable object
         // Walking in combat (TODO: This should probably be in Combat...)
         if (globalState.inCombat) {
-            if (!(globalState.combat!.inPlayerTurn || Config.combat.allowWalkDuringAnyTurn)) {
+            if (!(globalState.combat.inPlayerTurn || Config.combat.allowWalkDuringAnyTurn)) {
                 console.log('Wait your turn.')
                 return
             }
 
-            if (globalState.player.AP!.getAvailableMoveAP() === 0) {
-                uiLog(getProtoMsg(700)!) // "You don't have enough action points."
+            if (globalState.player.AP.getAvailableMoveAP() === 0) {
+                uiLog(getProtoMsg(700)) // "You don't have enough action points."
                 return
             }
 
-            const maxWalkingDist = globalState.player.AP!.getAvailableMoveAP()
+            const maxWalkingDist = globalState.player.AP.getAvailableMoveAP()
             if (!globalState.player.walkTo(mouseHex, Config.engine.doAlwaysRun, undefined, maxWalkingDist)) {
                 console.log('Cannot walk there')
             } else {
-                if (!globalState.player.AP!.subtractMoveAP(globalState.player.path.path.length - 1))
+                if (!globalState.player.AP.subtractMoveAP(globalState.player.path.path.length - 1))
                     throw (
                         'subtraction issue: has AP: ' +
-                        globalState.player.AP!.getAvailableMoveAP() +
+                        globalState.player.AP.getAvailableMoveAP() +
                         ' needs AP:' +
                         globalState.player.path.path.length +
                         ' and maxDist was:' +
@@ -150,14 +153,14 @@ export function playerUse() {
 
             // TODO: move within range of target
 
-            var weapon = globalState.player.equippedWeapon
+            const weapon = globalState.player.equippedWeapon
             if (weapon === null) {
                 console.log('You have no weapon equipped!')
                 return
             }
 
             if (weapon.weapon!.isCalled()) {
-                var art = 'art/critters/hmjmpsna' // default art
+                let art = 'art/critters/hmjmpsna' // default art
                 if (who.hasAnimation('called-shot')) art = who.getAnimation('called-shot')
 
                 console.log('art: %s', art)
@@ -178,7 +181,7 @@ export function playerUse() {
         }
     }
 
-    var callback = function () {
+    const callback = function () {
         globalState.player.clearAnim()
 
         if (!obj) throw Error()
@@ -277,8 +280,11 @@ heart.mousepressed = (x: number, y: number, btn: string) => {
 
 heart.keydown = (k: string) => {
     if (globalState.isLoading === true) return
-    var mousePos = heart.mouse.getPosition()
-    var mouseHex = hexFromScreen(mousePos[0] + globalState.cameraPosition.x, mousePos[1] + globalState.cameraPosition.y)
+    const mousePos = heart.mouse.getPosition()
+    const mouseHex = hexFromScreen(
+        mousePos[0] + globalState.cameraPosition.x,
+        mousePos[1] + globalState.cameraPosition.y
+    )
 
     if (k === Config.controls.cameraDown) globalState.cameraPosition.y += 15
     if (k === Config.controls.cameraRight) globalState.cameraPosition.x += 15
@@ -303,7 +309,7 @@ heart.keydown = (k: string) => {
     }
     if (k === Config.controls.showWalls) Config.ui.showWalls = !Config.ui.showWalls
     if (k === Config.controls.talkTo) {
-        var critter = globalState.gMap.critterAtPosition(mouseHex)
+        const critter = globalState.gMap.critterAtPosition(mouseHex)
         if (critter) {
             if (critter._script && critter._script.talk_p_proc !== undefined) {
                 console.log('talking to ' + critter.name)
@@ -314,7 +320,7 @@ heart.keydown = (k: string) => {
     if (k === Config.controls.inspect) {
         globalState.gMap.getObjects().forEach((obj, idx) => {
             if (obj.position.x === mouseHex.x && obj.position.y === mouseHex.y) {
-                var hasScripts =
+                const hasScripts =
                     (obj.script !== undefined ? 'yes (' + obj.script + ')' : 'no') +
                     ' ' +
                     (obj._script === undefined ? 'and is NOT loaded' : 'and is loaded')
@@ -340,25 +346,25 @@ heart.keydown = (k: string) => {
         globalState.player.walkTo(mouseHex, true)
     }
     if (k === Config.controls.attack) {
-        if (!globalState.inCombat || !globalState.combat!.inPlayerTurn || globalState.player.anim !== 'idle') {
+        if (!globalState.inCombat || !globalState.combat.inPlayerTurn || globalState.player.anim !== 'idle') {
             console.log("You can't do that yet.")
             return
         }
 
-        if (globalState.player.AP!.getAvailableCombatAP() < 4) {
-            uiLog(getProtoMsg(700)!)
+        if (globalState.player.AP.getAvailableCombatAP() < 4) {
+            uiLog(getProtoMsg(700))
             return
         }
 
-        for (var i = 0; i < globalState.combat!.combatants.length; i++) {
+        for (let i = 0; i < globalState.combat!.combatants.length; i++) {
             if (
-                globalState.combat!.combatants[i].position.x === mouseHex.x &&
-                globalState.combat!.combatants[i].position.y === mouseHex.y &&
-                !globalState.combat!.combatants[i].dead
+                globalState.combat.combatants[i].position.x === mouseHex.x &&
+                globalState.combat.combatants[i].position.y === mouseHex.y &&
+                !globalState.combat.combatants[i].dead
             ) {
-                globalState.player.AP!.subtractCombatAP(4)
+                globalState.player.AP.subtractCombatAP(4)
                 console.log('Attacking...')
-                globalState.combat!.attack(globalState.player, globalState.combat!.combatants[i])
+                globalState.combat.attack(globalState.player, globalState.combat.combatants[i])
                 break
             }
         }
@@ -366,9 +372,9 @@ heart.keydown = (k: string) => {
 
     if (k === Config.controls.combat) {
         if (!Config.engine.doCombat) return
-        if (globalState.inCombat === true && globalState.combat!.inPlayerTurn === true) {
+        if (globalState.inCombat === true && globalState.combat.inPlayerTurn === true) {
             console.log('[TURN]')
-            globalState.combat!.nextTurn()
+            globalState.combat.nextTurn()
         } else if (globalState.inCombat === true) {
             console.log('Wait your turn...')
         } else {
@@ -380,16 +386,16 @@ heart.keydown = (k: string) => {
     }
 
     if (k === Config.controls.playerToTargetRaycast) {
-        var obj = globalState.gMap.objectsAtPosition(mouseHex)[0]
+        const obj = globalState.gMap.objectsAtPosition(mouseHex)[0]
         if (obj !== undefined) {
-            var hit = globalState.gMap.hexLinecast(globalState.player.position, obj.position)
+            const hit = globalState.gMap.hexLinecast(globalState.player.position, obj.position)
             if (!hit) return
             console.log('hit obj: ' + hit.art)
         }
     }
 
     if (k === Config.controls.showTargetInventory) {
-        var obj = globalState.gMap.objectsAtPosition(mouseHex)[0]
+        const obj = globalState.gMap.objectsAtPosition(mouseHex)[0]
         if (obj !== undefined) {
             console.log('PID: ' + obj.pid)
             console.log('inventory: ' + JSON.stringify(obj.inventory))
@@ -398,8 +404,8 @@ heart.keydown = (k: string) => {
     }
 
     if (k === Config.controls.use) {
-        var objs = globalState.gMap.objectsAtPosition(mouseHex)
-        for (var i = 0; i < objs.length; i++) {
+        const objs = globalState.gMap.objectsAtPosition(mouseHex)
+        for (let i = 0; i < objs.length; i++) {
             objs[i].use()
         }
     }
@@ -407,7 +413,7 @@ heart.keydown = (k: string) => {
     if (k === 'h') globalState.player.move(mouseHex)
 
     if (k === Config.controls.kill) {
-        var critter = globalState.gMap.critterAtPosition(mouseHex)
+        const critter = globalState.gMap.critterAtPosition(mouseHex)
         if (critter) critterKill(critter, globalState.player)
     }
 
@@ -438,7 +444,7 @@ heart.update = function () {
     }
 
     if (globalState.uiMode !== UIMode.none) return
-    var time = window.performance.now()
+    const time = window.performance.now()
 
     if (time - globalState._lastFPSTime >= 500) {
         globalState.$fpsOverlay!.textContent = 'fps: ' + heart.timer.getFPS()
@@ -446,7 +452,7 @@ heart.update = function () {
     }
 
     if (globalState.gameHasFocus) {
-        var mousePos = heart.mouse.getPosition()
+        const mousePos = heart.mouse.getPosition()
         if (mousePos[0] <= Config.ui.scrollPadding) globalState.cameraPosition.x -= 15
         if (mousePos[0] >= SCREEN_WIDTH - Config.ui.scrollPadding) globalState.cameraPosition.x += 15
 
@@ -462,7 +468,7 @@ heart.update = function () {
             else changeCursor('auto')
         }
 
-        for (var i = 0; i < globalState.floatMessages.length; i++) {
+        for (let i = 0; i < globalState.floatMessages.length; i++) {
             if (time >= globalState.floatMessages[i].startTime + 1000 * Config.ui.floatMessageDuration) {
                 globalState.floatMessages.splice(i--, 1)
                 continue
@@ -470,16 +476,16 @@ heart.update = function () {
         }
     }
 
-    var didTick = time - globalState.lastGameTick >= 1000 / 10 // 10 Hz game tick
+    const didTick = time - globalState.lastGameTick >= 1000 / 10 // 10 Hz game tick
     if (didTick) {
         globalState.lastGameTick = time
         globalState.gameTickTime++
 
         if (Config.engine.doTimedEvents && !globalState.inCombat) {
             // check and update timed events
-            var timedEvents = Scripting.timeEventList
-            var numEvents = timedEvents.length
-            for (var i = 0; i < numEvents; i++) {
+            const timedEvents = Scripting.timeEventList
+            let numEvents = timedEvents.length
+            for (let i = 0; i < numEvents; i++) {
                 const event = timedEvents[i]
                 const obj = event.obj
 
@@ -535,13 +541,13 @@ export function useElevator(): void {
 
     console.log('[elevator]')
 
-    var center = globalState.player.position
-    var hexes = hexesInRadius(center, 11)
-    var elevatorStub = null
-    for (var i = 0; i < hexes.length; i++) {
-        var objs = globalState.gMap.objectsAtPosition(hexes[i])
-        for (var j = 0; j < objs.length; j++) {
-            var obj = objs[j]
+    const center = globalState.player.position
+    const hexes = hexesInRadius(center, 11)
+    let elevatorStub = null
+    for (let i = 0; i < hexes.length; i++) {
+        const objs = globalState.gMap.objectsAtPosition(hexes[i])
+        for (let j = 0; j < objs.length; j++) {
+            const obj = objs[j]
             if (obj.type === 'scenery' && obj.pidID === 1293) {
                 console.log('elevator stub @ ' + hexes[i].x + ', ' + hexes[i].y)
                 elevatorStub = obj
@@ -554,7 +560,7 @@ export function useElevator(): void {
 
     console.log('elevator type: ' + elevatorStub.extra.type + ', ' + 'level: ' + elevatorStub.extra.level)
 
-    var elevator = getElevator(elevatorStub.extra.type)
+    const elevator = getElevator(elevatorStub.extra.type)
     if (!elevator) throw 'no elevator: ' + elevatorStub.extra.type
 
     uiElevator(elevator)

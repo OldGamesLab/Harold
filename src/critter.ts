@@ -242,6 +242,7 @@ export class Weapon {
         }
     }
 
+    // FIXME: need some other way to check this without accessing `globalState.imageInfo`
     canEquip(obj: Critter): boolean {
         return globalState.imageInfo[obj.getBase() + this.getAnim('attack')] !== undefined
     }

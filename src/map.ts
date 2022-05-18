@@ -27,7 +27,7 @@ import { Scripting } from './scripting.js'
 import { fromTileNum, hexToTile } from './tile.js'
 import { arrayRemove, arrayWithout, getFileJSON } from './util.js'
 
-declare var PF: any
+declare let PF: any
 
 // Representation of game map and its serialized forms
 
@@ -55,7 +55,7 @@ export class GameMap {
     startingElevation: number
     numLevels: number
 
-    currentElevation: number = 0 // current map elevation
+    currentElevation = 0 // current map elevation
 
     floorMap: string[][] = null // Floor tilemap
     roofMap: string[][] = null // Roof tilemap
@@ -93,9 +93,9 @@ export class GameMap {
         // TODO: use a removal queue instead of removing directory (indexing problems)
 
         // TODO: better object equality testing
-        for (var level = 0; level < this.numLevels; level++) {
-            var objects = this.objects[level]
-            for (var i = 0; i < objects.length; i++) {
+        for (let level = 0; level < this.numLevels; level++) {
+            const objects = this.objects[level]
+            for (let i = 0; i < objects.length; i++) {
                 if (objects[i] === obj) {
                     console.log('removeObject: destroying index %d (%o/%o)', i, obj, objects[i])
                     this.objects[level].splice(i, 1)
@@ -125,8 +125,8 @@ export class GameMap {
         Scripting.updateMap(this.mapScript, this.getObjectsAndSpatials(), this.currentElevation)
     }
 
-    changeElevation(level: number, updateScripts: boolean = false, isMapLoading: boolean = false) {
-        var oldElevation = this.currentElevation
+    changeElevation(level: number, updateScripts = false, isMapLoading = false) {
+        const oldElevation = this.currentElevation
         this.currentElevation = level
         globalState.currentElevation = level // TODO: Get rid of this global
         this.floorMap = this.mapObj.levels[level].tiles.floor
@@ -174,10 +174,10 @@ export class GameMap {
         // set up party members' positions
         globalState.gParty.getPartyMembers().forEach((obj: Critter) => {
             // attempt party member placement around player
-            var placed = false
-            for (var dist = 1; dist < 3; dist++) {
-                for (var dir = 0; dir < 6; dir++) {
-                    var pos = hexInDirectionDistance(globalState.player.position, dir, dist)
+            let placed = false
+            for (let dist = 1; dist < 3; dist++) {
+                for (let dir = 0; dir < 6; dir++) {
+                    const pos = hexInDirectionDistance(globalState.player.position, dir, dist)
                     if (this.objectsAtPosition(pos).length === 0) {
                         obj.position = pos
                         console.log('placed %o @ %o', obj, pos)
@@ -226,12 +226,7 @@ export class GameMap {
         Scripting.updateMap(this.mapScript, objectsAndSpatials, this.currentElevation)
     }
 
-    loadMap(
-        mapName: string,
-        startingPosition?: Point,
-        startingElevation: number = 0,
-        loadedCallback?: () => void
-    ): void {
+    loadMap(mapName: string, startingPosition?: Point, startingElevation = 0, loadedCallback?: () => void): void {
         if (Config.engine.doSaveDirtyMaps && this.name !== null) {
             // if a map is already loaded, save it to the dirty map cache before loading
             console.log(`[Main] Serializing map ${this.name} and committing to dirty map cache`)
@@ -307,16 +302,16 @@ export class GameMap {
 
         console.log('loading map ' + mapName)
 
-        var mapImages = getFileJSON('maps/' + mapName + '.images.json')
-        for (var i = 0; i < mapImages.length; i++) load(mapImages[i])
+        const mapImages = getFileJSON('maps/' + mapName + '.images.json')
+        for (let i = 0; i < mapImages.length; i++) load(mapImages[i])
         console.log('loading ' + mapImages.length + ' images')
 
-        var map = getFileJSON('maps/' + mapName + '.json')
+        const map = getFileJSON('maps/' + mapName + '.json')
         this.mapObj = map
         this.mapID = map.mapID
         this.numLevels = map.levels.length
 
-        var elevation = startingElevation !== undefined ? startingElevation : 0
+        let elevation = startingElevation !== undefined ? startingElevation : 0
 
         if (Config.engine.doLoadScripts) {
             Scripting.init(mapName)
@@ -340,7 +335,7 @@ export class GameMap {
                 // initialize spatial scripts
                 this.spatials.forEach((level: any) =>
                     level.forEach((spatial: Spatial) => {
-                        var script = Scripting.loadScript(spatial.script)
+                        const script = Scripting.loadScript(spatial.script)
                         if (script === null) console.log('load script failed for spatial ' + spatial.script)
                         else {
                             spatial._script = script
@@ -358,7 +353,7 @@ export class GameMap {
         // Load map objects. Note that these need to be loaded *after* the map so that object scripts
         // have access to the map script object.
         this.objects = new Array(map.levels.length)
-        for (var level = 0; level < map.levels.length; level++) {
+        for (let level = 0; level < map.levels.length; level++) {
             this.objects[level] = map.levels[level].objects.map((obj: any) => objFromMapObject(obj))
         }
 
@@ -367,7 +362,7 @@ export class GameMap {
 
         // TODO: when exactly are these called?
         // TODO: when objectsAndSpatials is updated, the scripting engine won't know
-        var objectsAndSpatials = this.getObjectsAndSpatials()
+        const objectsAndSpatials = this.getObjectsAndSpatials()
 
         if (Config.engine.doLoadScripts) {
             // party member NPCs get the new map script
@@ -395,14 +390,12 @@ export class GameMap {
 
         // load some testing art
         load('art/critters/hmjmpsat')
-        load('hex_outline', (r: any) => {
-            globalState.hexOverlay = r
-        })
+        load('hex_outline')
 
         globalState.loadingAssetsTotal-- // we should know all of the assets we need by now
 
         // clear audio and use the map music
-        var curMapInfo = getCurrentMapInfo()
+        const curMapInfo = getCurrentMapInfo()
         globalState.audioEngine.stopAll()
         if (curMapInfo && curMapInfo.music) globalState.audioEngine.playMusic(curMapInfo.music)
 
@@ -410,7 +403,7 @@ export class GameMap {
     }
 
     loadMapByID(mapID: number, startingPosition?: Point, startingElevation?: number): void {
-        var mapName = lookupMapName(mapID)
+        const mapName = lookupMapName(mapID)
         if (mapName !== null) this.loadMap(mapName, startingPosition, startingElevation)
         else console.log("couldn't lookup map name for map ID " + mapID)
     }
@@ -425,13 +418,13 @@ export class GameMap {
 
     /// Draws a line between a and b, returning the first object hit
     hexLinecast(a: Point, b: Point): Obj | null {
-        var line = hexLine(a, b)
+        let line = hexLine(a, b)
         if (line === null) return null
         line = line.slice(1, -1)
-        for (var i = 0; i < line.length; i++) {
+        for (let i = 0; i < line.length; i++) {
             // todo: we could optimize this by only
             // checking in a certain radius of `a`
-            var obj = this.objectsAtPosition(line[i])
+            const obj = this.objectsAtPosition(line[i])
             if (obj.length !== 0) return obj[0]
         }
         return null

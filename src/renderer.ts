@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import { heart } from './heart.js'
 import { BoundingBox, hexFromScreen, hexToScreen, Point, pointInBoundingBox } from './geometry.js'
 import globalState from './globalState.js'
@@ -58,9 +60,9 @@ export class Renderer {
 
         if (globalState.isLoading) {
             this.color(0, 0, 0)
-            var w = 256,
+            const w = 256,
                 h = 40
-            var w2 = (globalState.loadingAssetsLoaded / globalState.loadingAssetsTotal) * w
+            const w2 = (globalState.loadingAssetsLoaded / globalState.loadingAssetsTotal) * w
             // draw a loading progress bar
             this.rectangle(SCREEN_WIDTH / 2 - w / 2, SCREEN_HEIGHT / 2, w, h, false)
             this.rectangle(SCREEN_WIDTH / 2 - w / 2 + 2, SCREEN_HEIGHT / 2 + 2, w2 - 4, h - 4)
@@ -69,37 +71,33 @@ export class Renderer {
 
         this.color(255, 255, 255)
 
-        var mousePos = heart.mouse.getPosition()
-        var mouseHex = hexFromScreen(
+        const mousePos = heart.mouse.getPosition()
+        const mouseHex = hexFromScreen(
             mousePos[0] + globalState.cameraPosition.x,
             mousePos[1] + globalState.cameraPosition.y
         )
-        var mouseSquare = tileFromScreen(
+        const mouseSquare = tileFromScreen(
             mousePos[0] + globalState.cameraPosition.x,
             mousePos[1] + globalState.cameraPosition.y
         )
         //var mouseTile = tileFromScreen(mousePos[0] + cameraX, mousePos[1] + cameraY)
 
         if (Config.ui.showFloor) this.renderFloor(this.floorTiles)
-        if (Config.ui.showCursor && globalState.hexOverlay) {
-            var scr = hexToScreen(mouseHex.x, mouseHex.y)
-            this.image(
-                globalState.hexOverlay,
-                scr.x - 16 - globalState.cameraPosition.x,
-                scr.y - 12 - globalState.cameraPosition.y
-            )
+        if (Config.ui.showCursor) {
+            const scr = hexToScreen(mouseHex.x, mouseHex.y)
+            this.renderImage('hex_outline', scr.x - 16, scr.y - 12, 32, 16)
         }
         if (Config.ui.showObjects) this.renderObjects(this.objects)
         if (Config.ui.showRoof) this.renderRoof(this.roofTiles)
 
         if (globalState.inCombat) {
-            var whose = globalState.combat.inPlayerTurn
+            const whose = globalState.combat.inPlayerTurn
                 ? 'player'
                 : globalState.combat.combatants[globalState.combat.whoseTurn].name
-            var AP = globalState.combat.inPlayerTurn
+            const AP = globalState.combat.inPlayerTurn
                 ? globalState.player.AP
                 : globalState.combat.combatants[globalState.combat.whoseTurn].AP
-            this.text(
+            this.renderText(
                 '[turn ' + globalState.combat.turnNum + ' of ' + whose + ' AP: ' + AP.getAvailableMoveAP() + ']',
                 SCREEN_WIDTH - 200,
                 15
@@ -108,9 +106,9 @@ export class Renderer {
 
         if (Config.ui.showSpatials && Config.engine.doSpatials) {
             globalState.gMap.getSpatials().forEach((spatial) => {
-                var scr = hexToScreen(spatial.position.x, spatial.position.y)
+                const scr = hexToScreen(spatial.position.x, spatial.position.y)
                 //heart.graphics.draw(hexOverlay, scr.x - 16 - cameraX, scr.y - 12 - cameraY)
-                this.text(
+                this.renderText(
                     spatial.script,
                     scr.x - 10 - globalState.cameraPosition.x,
                     scr.y - 3 - globalState.cameraPosition.y
@@ -118,19 +116,19 @@ export class Renderer {
             })
         }
 
-        this.text('mh: ' + mouseHex.x + ',' + mouseHex.y, 5, 15)
-        this.text('mt: ' + mouseSquare.x + ',' + mouseSquare.y, 75, 15)
+        this.renderText('mh: ' + mouseHex.x + ',' + mouseHex.y, 5, 15)
+        this.renderText('mt: ' + mouseSquare.x + ',' + mouseSquare.y, 75, 15)
         //heart.graphics.print("mt: " + mouseTile.x + "," + mouseTile.y, 100, 15)
-        this.text('m: ' + mousePos[0] + ', ' + mousePos[1], 175, 15)
+        this.renderText('m: ' + mousePos[0] + ', ' + mousePos[1], 175, 15)
 
         //this.text("fps: " + heart.timer.getFPS(), SCREEN_WIDTH - 50, 15)
 
-        for (var i = 0; i < globalState.floatMessages.length; i++) {
-            var bbox = objectBoundingBox(globalState.floatMessages[i].obj)
+        for (let i = 0; i < globalState.floatMessages.length; i++) {
+            const bbox = objectBoundingBox(globalState.floatMessages[i].obj)
             if (bbox === null) continue
             heart.ctx.fillStyle = globalState.floatMessages[i].color
-            var centerX = bbox.x - bbox.w / 2 - globalState.cameraPosition.x
-            this.text(globalState.floatMessages[i].msg, centerX, bbox.y - globalState.cameraPosition.y - 16)
+            const centerX = bbox.x - bbox.w / 2 - globalState.cameraPosition.x
+            this.renderText(globalState.floatMessages[i].msg, centerX, bbox.y - globalState.cameraPosition.y - 16)
         }
 
         if (globalState.player.dead) {
@@ -140,24 +138,24 @@ export class Renderer {
     }
 
     objectRenderInfo(obj: Obj): ObjectRenderInfo | null {
-        var scr = hexToScreen(obj.position.x, obj.position.y)
-        var visible = obj.visible
+        const scr = hexToScreen(obj.position.x, obj.position.y)
+        let visible = obj.visible
 
         if (globalState.images[obj.art] === undefined) {
             lazyLoadImage(obj.art) // try to load it in
             return null
         }
 
-        var info = globalState.imageInfo[obj.art]
+        const info = globalState.imageInfo[obj.art]
         if (info === undefined) throw 'No image map info for: ' + obj.art
 
         if (!(obj.orientation in info.frameOffsets)) obj.orientation = 0 // ...
-        var frameInfo = info.frameOffsets[obj.orientation][obj.frame]
-        var dirOffset = info.directionOffsets[obj.orientation]
+        const frameInfo = info.frameOffsets[obj.orientation][obj.frame]
+        const dirOffset = info.directionOffsets[obj.orientation]
 
         // Anchored from the bottom center
-        var offsetX = -((frameInfo.w / 2) | 0) + dirOffset.x
-        var offsetY = -frameInfo.h + dirOffset.y
+        let offsetX = -((frameInfo.w / 2) | 0) + dirOffset.x
+        let offsetY = -frameInfo.h + dirOffset.y
 
         if (obj.shift) {
             offsetX += obj.shift.x
@@ -167,7 +165,7 @@ export class Renderer {
             offsetY += frameInfo.oy
         }
 
-        var scrX = scr.x + offsetX,
+        const scrX = scr.x + offsetX,
             scrY = scr.y + offsetY
 
         if (
@@ -178,8 +176,8 @@ export class Renderer {
         )
             visible = false // out of screen bounds, no need to draw
 
-        var spriteFrameNum = info.numFrames * obj.orientation + obj.frame
-        var sx = spriteFrameNum * info.frameWidth
+        const spriteFrameNum = info.numFrames * obj.orientation + obj.frame
+        const sx = spriteFrameNum * info.frameWidth
 
         return {
             x: scrX,
@@ -207,10 +205,10 @@ export class Renderer {
     init(): void {}
 
     clear(r: number, g: number, b: number): void {}
-    color(r: number, g: number, b: number, a: number = 255): void {}
-    rectangle(x: number, y: number, w: number, h: number, filled: boolean = true): void {}
-    text(txt: string, x: number, y: number): void {}
-    image(img: HTMLImageElement, x: number, y: number, w?: number, h?: number): void {}
+    color(r: number, g: number, b: number, a = 255): void {}
+    rectangle(x: number, y: number, w: number, h: number, filled = true): void {}
+    renderText(txt: string, x: number, y: number): void {}
+    renderImage(imgPath: string, x: number, y: number, width: number, height: number): void {}
 
     renderRoof(roof: TileMap): void {}
     renderFloor(floor: TileMap): void {}
@@ -221,13 +219,13 @@ export class Renderer {
 }
 
 export function centerCamera(around: Point) {
-    var scr = hexToScreen(around.x, around.y)
+    const scr = hexToScreen(around.x, around.y)
     globalState.cameraPosition.x = Math.max(0, (scr.x - SCREEN_WIDTH / 2) | 0)
     globalState.cameraPosition.y = Math.max(0, (scr.y - SCREEN_HEIGHT / 2) | 0)
 }
 
 export function objectOnScreen(obj: Obj): boolean {
-    var bbox = objectBoundingBox(obj)
+    const bbox = objectBoundingBox(obj)
     if (bbox === null) return false
 
     if (
@@ -241,53 +239,53 @@ export function objectOnScreen(obj: Obj): boolean {
 }
 
 export function objectTransparentAt(obj: Obj, position: Point) {
-    var frame = obj.frame !== undefined ? obj.frame : 0
-    var sx = globalState.imageInfo[obj.art].frameOffsets[obj.orientation][frame].sx
+    const frame = obj.frame !== undefined ? obj.frame : 0
+    const sx = globalState.imageInfo[obj.art].frameOffsets[obj.orientation][frame].sx
 
     if (!globalState.tempCanvasCtx) throw Error()
 
     globalState.tempCanvasCtx.clearRect(0, 0, 1, 1) // clear previous color
     globalState.tempCanvasCtx.drawImage(globalState.images[obj.art], sx + position.x, position.y, 1, 1, 0, 0, 1, 1)
-    var pixelAlpha = globalState.tempCanvasCtx.getImageData(0, 0, 1, 1).data[3]
+    const pixelAlpha = globalState.tempCanvasCtx.getImageData(0, 0, 1, 1).data[3]
 
     return pixelAlpha === 0
 }
 
 // get an object's bounding box in screen-space (note: not camera-space)
 export function objectBoundingBox(obj: Obj): BoundingBox | null {
-    var scr = hexToScreen(obj.position.x, obj.position.y)
+    const scr = hexToScreen(obj.position.x, obj.position.y)
 
     if (globalState.images[obj.art] === undefined)
         // no art
         return null
 
-    var info = globalState.imageInfo[obj.art]
+    const info = globalState.imageInfo[obj.art]
     if (info === undefined) throw 'No image map info for: ' + obj.art
 
-    var frameIdx = 0
+    let frameIdx = 0
     if (obj.frame !== undefined) frameIdx += obj.frame
 
     if (!(obj.orientation in info.frameOffsets)) obj.orientation = 0 // ...
-    var frameInfo = info.frameOffsets[obj.orientation][frameIdx]
-    var dirOffset = info.directionOffsets[obj.orientation]
-    var offsetX = Math.floor(frameInfo.w / 2) - dirOffset.x - frameInfo.ox
-    var offsetY = frameInfo.h - dirOffset.y - frameInfo.oy
+    const frameInfo = info.frameOffsets[obj.orientation][frameIdx]
+    const dirOffset = info.directionOffsets[obj.orientation]
+    const offsetX = Math.floor(frameInfo.w / 2) - dirOffset.x - frameInfo.ox
+    const offsetY = frameInfo.h - dirOffset.y - frameInfo.oy
 
     return { x: scr.x - offsetX, y: scr.y - offsetY, w: frameInfo.w, h: frameInfo.h }
 }
 
 export function getObjectUnderCursor(p: (obj: Obj) => boolean) {
-    var mouse = heart.mouse.getPosition()
+    const mouse = heart.mouse.getPosition()
     const mousePosition = { x: mouse[0] + globalState.cameraPosition.x, y: mouse[1] + globalState.cameraPosition.y }
 
     // reverse z-ordered search
-    var objects = globalState.gMap.getObjects()
-    for (var i = objects.length - 1; i > 0; i--) {
-        var bbox = objectBoundingBox(objects[i])
+    const objects = globalState.gMap.getObjects()
+    for (let i = objects.length - 1; i > 0; i--) {
+        const bbox = objectBoundingBox(objects[i])
         if (bbox === null) continue
         if (pointInBoundingBox(mousePosition, bbox))
             if (p === undefined || p(objects[i]) === true) {
-                var mouseRel = { x: mousePosition.x - bbox.x, y: mousePosition.y - bbox.y }
+                const mouseRel = { x: mousePosition.x - bbox.x, y: mousePosition.y - bbox.y }
                 if (!objectTransparentAt(objects[i], mouseRel)) return objects[i]
             }
     }
