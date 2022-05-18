@@ -209,13 +209,21 @@ export function playerUse() {
     else globalState.player.walkInFrontOf(obj.position, callback)
 }
 
-heart.load = function () {
+window.onload = async function () {
     globalState.isInitializing = true
 
     globalState.$fpsOverlay = document.getElementById('fpsOverlay')
 
+    const fragment = await fetch('shaders/fragment.glsl')
+    const fragmentLighting = await fetch('shaders/fragmentLighting.glsl')
+    const vertex = await fetch('shaders/vertex.glsl')
+
     // initialize renderer
-    globalState.renderer = new WebGLRenderer()
+    globalState.renderer = new WebGLRenderer({
+        fragment: await fragment.text(),
+        fragmentLighting: await fragmentLighting.text(),
+        vertex: await vertex.text(),
+    })
 
     globalState.renderer.init()
 
@@ -253,6 +261,8 @@ heart.load = function () {
             })
         })
     })
+
+    heart._init()
 }
 
 heart.mousepressed = (x: number, y: number, btn: string) => {

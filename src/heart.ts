@@ -189,8 +189,6 @@ class Heart {
     keyboard = new Keyboard()
     timer = new Timer()
 
-    preload: () => void
-    load: () => void
     keydown: (key: string) => void
     keypressed: (key: string) => void
     keyup: (key: string) => void
@@ -210,7 +208,6 @@ class Heart {
             return
         }
 
-        if (heart.load !== undefined) heart.load()
         if (heart.canvas === undefined || heart.ctx === undefined) alert('no canvas')
 
         var rect = heart.canvas.getBoundingClientRect()
@@ -347,11 +344,6 @@ window.onbeforeunload = function (e) {
         var ret = heart.quit()
         if (ret) return ret
     }
-}
-
-window.onload = function () {
-    if (heart.preload !== undefined) heart.preload()
-    heart._init()
 }
 
 export const heart = new Heart()

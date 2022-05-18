@@ -8,6 +8,12 @@ import { tileToScreen, TILE_HEIGHT, TILE_WIDTH } from './tile.js'
 import { getFileJSON } from './util.js'
 import { Config } from './config.js'
 
+export interface ShaderSources {
+    fragment: string
+    vertex: string
+    fragmentLighting: string
+}
+
 export class WebGLRenderer extends Renderer {
     canvas: HTMLCanvasElement
     gl: WebGLRenderingContext
@@ -32,6 +38,13 @@ export class WebGLRenderer extends Renderer {
     floorLightShader: any
 
     textures: { [key: string]: any } = {} // WebGL texture cache
+
+    shaderSources: ShaderSources
+
+    constructor(shaderSources: ShaderSources) {
+        super()
+        this.shaderSources = shaderSources
+    }
 
     newTexture(key: string, img: any, doCache: boolean = true): any {
         var gl = this.gl
@@ -129,7 +142,7 @@ export class WebGLRenderer extends Renderer {
         this.gl.enable(this.gl.BLEND)
 
         // set up tile shader
-        this.tileShader = this.getProgram(this.gl, '2d-vertex-shader', '2d-fragment-shader')
+        this.tileShader = this.getProgram(this.gl, 'vertex', 'fragment')
         this.gl.useProgram(this.tileShader)
 
         // set up uniforms/attributes
@@ -166,7 +179,7 @@ export class WebGLRenderer extends Renderer {
 
         // set up floor light shader
         if (Config.engine.doFloorLighting) {
-            this.floorLightShader = this.getProgram(this.gl, '2d-vertex-shader', '2d-lighting-fragment-shader')
+            this.floorLightShader = this.getProgram(this.gl, 'vertex', 'fragmentLighting')
             gl.useProgram(this.floorLightShader)
             this.litOffsetLocation = gl.getUniformLocation(this.floorLightShader, 'u_offset')
             this.litScaleLocation = gl.getUniformLocation(this.floorLightShader, 'u_scale')
@@ -246,10 +259,9 @@ export class WebGLRenderer extends Renderer {
         return buffer
     }
 
-    getShader(gl: WebGLRenderingContext, id: string) {
-        var el: any = document.getElementById(id) // TODO
-        var source = el.text
-        var shader = gl.createShader(el.type === 'x-shader/x-fragment' ? gl.FRAGMENT_SHADER : gl.VERTEX_SHADER)
+    getShader(gl: WebGLRenderingContext, id: keyof ShaderSources) {
+        var source = this.shaderSources[id]
+        var shader = gl.createShader(id.includes('fragment') ? gl.FRAGMENT_SHADER : gl.VERTEX_SHADER)
         gl.shaderSource(shader, source)
         gl.compileShader(shader)
 
@@ -261,7 +273,7 @@ export class WebGLRenderer extends Renderer {
         return shader
     }
 
-    getProgram(gl: WebGLRenderingContext, vid: string, fid: string) {
+    getProgram(gl: WebGLRenderingContext, vid: keyof ShaderSources, fid: keyof ShaderSources) {
         var fsh = this.getShader(gl, fid)
         var vsh = this.getShader(gl, vid)
         var program = gl.createProgram()
