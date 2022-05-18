@@ -17,10 +17,10 @@ limitations under the License.
 
 import { Config } from './config.js'
 import { CriticalEffects } from './criticalEffects.js'
-import { Critter, critterDamage } from './critter.js'
+import { critterDamage } from './critter.js'
 import { hexDistance, hexNearestNeighbor, hexNeighbors, Point } from './geometry.js'
 import globalState from './globalState.js'
-import { Obj } from './object.js'
+import { Critter, Obj } from './object.js'
 import { Player } from './player.js'
 import { Scripting } from './scripting.js'
 import { uiEndCombat, uiStartCombat } from './ui.js'

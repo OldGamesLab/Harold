@@ -15,14 +15,13 @@ limitations under the License.
 */
 
 import { Config } from './config.js'
-import { Critter } from './critter.js'
 import { getCurrentMapInfo, lookupMapName } from './data.js'
 import { Events } from './events.js'
 import { hexInDirectionDistance, hexLine, HEX_GRID_SIZE, Point, pointInBoundingBox } from './geometry.js'
 import globalState from './globalState.js'
 import { heart, HeartImage } from './heart.js'
 import { Lightmap } from './lightmap.js'
-import { deserializeObj, Obj, objFromMapObject } from './object.js'
+import { Critter, deserializeObj, Obj, objFromMapObject } from './object.js'
 import { centerCamera } from './renderer.js'
 import { Scripting } from './scripting.js'
 import { fromTileNum, hexToTile } from './tile.js'

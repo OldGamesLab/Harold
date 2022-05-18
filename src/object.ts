@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Critter, Weapon } from './critter.js'
+import { Weapon } from './critter.js'
 import { getLstId, lookupScriptName } from './data.js'
 import { Events } from './events.js'
 import { heart } from './heart.js'
-import { hexesInRadius, Point } from './geometry.js'
+import { directionOfDelta, hexDistance, hexesInRadius, hexToScreen, Point } from './geometry.js'
 import globalState from './globalState.js'
 import { lazyLoadImage } from './images.js'
 import { Lightmap } from './lightmap.js'
@@ -28,6 +28,8 @@ import { fromTileNum } from './tile.js'
 import { uiLoot } from './ui.js'
 import { deepClone, getMessage } from './util.js'
 import { Config } from './config.js'
+import { SkillSet, StatSet } from './char.js'
+import { ActionPoints, AI } from './combat.js'
 
 // Collection of functions for working with game objects
 
@@ -859,4 +861,493 @@ export function objFromMapObject(mobj: any, deserializing: boolean = false) {
 
 export function deserializeObj(mobj: SerializedObj) {
     return objFromMapObject(mobj, true)
+}
+
+export class Critter extends Obj {
+    stats!: StatSet
+    skills!: SkillSet
+
+    leftHand?: WeaponObj // Left-hand object slot
+    rightHand?: WeaponObj // Right-hand object slot
+
+    type = 'critter'
+    anim = 'idle'
+    path: any = null // Holds pathfinding objects
+    AP: ActionPoints | null = null
+
+    aiNum: number = -1 // AI packet number
+    teamNum: number = -1 // AI team number (TODO: implement this)
+    ai: AI | null = null // AI packet
+    hostile: boolean = false // Currently engaging an enemy?
+
+    isPlayer: boolean = false // Is this critter the player character?
+    dead: boolean = false // Is this critter dead?
+
+    static fromPID(pid: number, sid?: number): Critter {
+        return Obj.fromPID_(new Critter(), pid, sid)
+    }
+
+    static fromMapObject(mobj: any, deserializing: boolean = false): Critter {
+        const obj = Obj.fromMapObject_(new Critter(), mobj, deserializing)
+
+        if (deserializing) {
+            // deserialize critter: copy fields from SerializedCritter
+            console.log('Deserializing critter')
+            // console.trace();
+
+            for (const prop of SERIALIZED_CRITTER_PROPS) {
+                // console.log(`loading prop ${prop} from SerializedCritter = ${mobj[prop]}`);
+                ;(<any>obj)[prop] = mobj[prop]
+            }
+
+            if (mobj.stats) {
+                obj.stats = new StatSet(mobj.stats.baseStats, mobj.stats.useBonuses)
+                console.warn('Deserializing stat set: %o to: %o', mobj.stats, obj.stats)
+            }
+            if (mobj.skills) {
+                obj.skills = new SkillSet(mobj.skills.baseSkills, mobj.skills.tagged, mobj.skills.skillPoints)
+                console.warn('Deserializing skill set: %o to: %o', mobj.skills, obj.skills)
+            }
+        }
+
+        return obj
+    }
+
+    init() {
+        super.init()
+
+        this.stats = StatSet.fromPro(this.pro)
+        this.skills = SkillSet.fromPro(this.pro.extra.skills)
+        // console.log("Loaded stats/skills from PRO: HP=%d Speech=%d", this.stats.get("HP"), this.skills.get("Speech", this.stats))
+        this.name = getMessage('pro_crit', this.pro.textID) || ''
+
+        // initialize AI packet / team number
+        this.aiNum = this.pro.extra.AI
+        this.teamNum = this.pro.extra.team
+
+        // initialize weapons
+        this.inventory.forEach((inv) => {
+            if (inv.subtype === 'weapon') {
+                var w = <WeaponObj>inv
+                if (this.leftHand === undefined) {
+                    if (w.weapon!.canEquip(this)) this.leftHand = w
+                } else if (this.rightHand === undefined) {
+                    if (w.weapon!.canEquip(this)) this.rightHand = w
+                }
+                //console.log("left: " + this.leftHand + " | right: " + this.rightHand)
+            }
+        })
+
+        // default to punches
+        if (!this.leftHand) this.leftHand = <WeaponObj>{ type: 'item', subtype: 'weapon', weapon: new Weapon(null) }
+        if (!this.rightHand) this.rightHand = <WeaponObj>{ type: 'item', subtype: 'weapon', weapon: new Weapon(null) }
+
+        // set them in their proper idle state for the weapon
+        this.art = this.getAnimation('idle')
+    }
+
+    updateStaticAnim(): void {
+        var time = heart.timer.getTime()
+        var fps = 8 // todo: get FPS from image info
+
+        if (time - this.lastFrameTime >= 1000 / fps) {
+            this.frame++
+            this.lastFrameTime = time
+
+            if (this.frame === globalState.imageInfo[this.art].numFrames) {
+                // animation is done
+                if (this.animCallback) this.animCallback()
+            }
+        }
+    }
+
+    updateAnim(): void {
+        if (!this.anim || this.anim === 'idle') return
+        if (animInfo[this.anim].type === 'static') return this.updateStaticAnim()
+
+        var time = heart.timer.getTime()
+        var fps = globalState.imageInfo[this.art].fps
+        var targetScreen = hexToScreen(this.path.target.x, this.path.target.y)
+
+        var partials = getAnimPartialActions(this.art, this.anim)
+        var currentPartial = partials.actions[this.path.partial]
+
+        if (time - this.lastFrameTime >= 1000 / fps) {
+            // advance frame
+            this.lastFrameTime = time
+
+            if (this.frame === currentPartial.endFrame || this.frame + 1 >= globalState.imageInfo[this.art].numFrames) {
+                // completed an action frame (partial action)
+
+                // do we have another partial action?
+                if (this.path.partial + 1 < partials.actions.length) {
+                    // then proceed to next partial action
+                    this.path.partial++
+                } else {
+                    // otherwise we're done animating this, loop
+                    this.path.partial = 0
+                }
+
+                // move to the start of the next partial action
+                // we're already on its startFrame which coincides with the current endFrame,
+                // so we add one to get to the next frame.
+                // unless we're the first one, in which case just 0.
+                var nextFrame = partials.actions[this.path.partial].startFrame + 1
+                if (this.path.partial === 0) nextFrame = 0
+                this.frame = nextFrame
+
+                // reset shift
+                this.shift = { x: 0, y: 0 }
+
+                // move to new path hex
+                var pos = this.path.path[this.path.index++]
+                var hex = { x: pos[0], y: pos[1] }
+
+                if (!this.move(hex)) return
+                if (!this.path)
+                    // it's possible for move() to have side effects which can clear the anim
+                    return
+
+                // set orientation towards new path hex
+                pos = this.path.path[this.path.index]
+                if (pos) {
+                    const dir = directionOfDelta(this.position.x, this.position.y, pos[0], pos[1])
+                    if (dir == null) throw Error()
+                    this.orientation = dir
+                }
+            } else {
+                // advance frame
+                this.frame++
+
+                var info = globalState.imageInfo[this.art]
+                if (info === undefined) throw 'No image map info for: ' + this.art
+
+                // add the new frame's offset to our shift
+                var frameInfo = info.frameOffsets[this.orientation][this.frame]
+                this.shift.x += frameInfo.x
+                this.shift.y += frameInfo.y
+            }
+
+            if (this.position.x === this.path.target.x && this.position.y === this.path.target.y) {
+                // reached target position
+                // TODO: better logging system
+                //console.log("target reached")
+
+                var callback = this.animCallback
+                this.clearAnim()
+
+                if (callback) callback()
+            }
+        }
+    }
+
+    blocks(): boolean {
+        return this.dead !== true && this.visible !== false
+    }
+
+    inAnim(): boolean {
+        return !!(this.path || this.animCallback)
+    }
+
+    move(position: Point, curIdx?: number, signalEvents: boolean = true): boolean {
+        if (!super.move(position, curIdx, signalEvents)) return false
+
+        if (Config.engine.doSpatials !== false) {
+            var hitSpatials = hitSpatialTrigger(position)
+            for (var i = 0; i < hitSpatials.length; i++) {
+                var spatial = hitSpatials[i]
+                console.log(
+                    'triggered spatial ' +
+                        spatial.script +
+                        ' (' +
+                        spatial.range +
+                        ') @ ' +
+                        spatial.position.x +
+                        ', ' +
+                        spatial.position.y
+                )
+                Scripting.spatial(spatial, this)
+            }
+        }
+
+        return true
+    }
+
+    canRun(): boolean {
+        return this.hasAnimation('run')
+    }
+
+    getSkill(skill: string) {
+        return this.skills.get(skill, this.stats)
+    }
+
+    getStat(stat: string) {
+        return this.stats.get(stat)
+    }
+
+    getBase(): string {
+        return this.art.slice(0, -2)
+    }
+
+    get equippedWeapon(): WeaponObj | null {
+        // TODO: Get actual selection
+        if (objectIsWeapon(this.leftHand)) return this.leftHand || null
+        if (objectIsWeapon(this.rightHand)) return this.rightHand || null
+        return null
+    }
+
+    getAnimation(anim: string): string {
+        var base = this.getBase()
+
+        // try weapon animation first
+        var weaponObj = this.equippedWeapon
+        if (weaponObj !== null && Config.engine.doUseWeaponModel === true) {
+            if (!weaponObj.weapon) throw Error()
+            var wepAnim = weaponObj.weapon.getAnim(anim)
+            if (wepAnim) return base + wepAnim
+        }
+
+        var wep = 'a'
+        switch (anim) {
+            case 'attack':
+                console.log('default attack animation instead of weapon animation.')
+                return base + wep + 'a'
+            case 'idle':
+                return base + wep + 'a'
+            case 'walk':
+                return base + wep + 'b'
+            case 'run':
+                return base + wep + 't'
+            case 'shoot':
+                return base + wep + 'j'
+            case 'weapon-reload':
+                return base + wep + 'a'
+            case 'static-idle':
+                return base + wep + 'a'
+            case 'static':
+                return this.art
+            case 'hitFront':
+                return base + 'ao'
+            case 'use':
+                return base + 'al'
+            case 'pickUp':
+                return base + 'ak'
+            case 'climb':
+                return base + 'ae'
+            //case "punch": return base + 'aq'
+            case 'called-shot':
+                return base + 'na'
+            case 'death':
+                if (this.pro && this.pro.extra.killType === 18) {
+                    // Boss is special-cased
+                    console.log('Boss death...')
+                    return base + 'bl'
+                }
+                return base + 'bo' // TODO: choose death animation better
+            case 'death-explode':
+                return base + 'bl'
+            default:
+                throw 'Unknown animation: ' + anim
+        }
+    }
+
+    hasAnimation(anim: string): boolean {
+        return globalState.imageInfo[this.getAnimation(anim)] !== undefined
+    }
+
+    get killType(): number | null {
+        if (this.isPlayer) return 19 // last type
+        if (!this.pro || !this.pro.extra) return null
+        return this.pro.extra.killType
+    }
+
+    staticAnimation(anim: string, callback?: () => void, waitForLoad: boolean = true): void {
+        this.art = this.getAnimation(anim)
+        this.frame = 0
+        this.lastFrameTime = 0
+
+        if (waitForLoad) {
+            lazyLoadImage(this.art, () => {
+                this.anim = anim
+                this.animCallback = callback || (() => this.clearAnim())
+            })
+        } else {
+            this.anim = anim
+            this.animCallback = callback || (() => this.clearAnim())
+        }
+    }
+
+    get directionalOffset(): Point {
+        var info = globalState.imageInfo[this.art]
+        if (info === undefined) throw 'No image map info for: ' + this.art
+        return info.directionOffsets[this.orientation]
+    }
+
+    clearAnim(): void {
+        super.clearAnim()
+        this.path = null
+
+        // reset to idle pose
+        this.anim = 'idle'
+        this.art = this.getAnimation('idle')
+    }
+
+    walkTo(target: Point, running?: boolean, callback?: () => void, maxLength?: number, path?: any): boolean {
+        // pathfind and set walking to target
+        if (this.position.x === target.x && this.position.y === target.y) {
+            // can't walk to the same tile
+            return false
+        }
+
+        if (path === undefined) path = globalState.gMap.recalcPath(this.position, target)
+
+        if (path.length === 0) {
+            // no path
+            //console.log("not a valid path")
+            return false
+        }
+
+        if (maxLength !== undefined && path.length > maxLength) {
+            console.log('truncating path (to length ' + maxLength + ')')
+            path = path.slice(0, maxLength + 1)
+        }
+
+        // some critters can't run
+        if (running && !this.canRun()) running = false
+
+        // set up animation properties
+        var actualTarget = { x: path[path.length - 1][0], y: path[path.length - 1][1] }
+        this.path = { path: path, index: 1, target: actualTarget, partial: 0 }
+        this.anim = running ? 'run' : 'walk'
+        this.art = this.getAnimation(this.anim)
+        this.animCallback = callback || (() => this.clearAnim())
+        this.frame = 0
+        this.lastFrameTime = heart.timer.getTime()
+        this.shift = { x: 0, y: 0 }
+        const dir = directionOfDelta(this.position.x, this.position.y, path[1][0], path[1][1])
+        if (dir == null) throw Error()
+        this.orientation = dir
+        //console.log("start dir: %o", this.orientation)
+
+        return true
+    }
+
+    walkInFrontOf(targetPos: Point, callback?: () => void): boolean {
+        var path = globalState.gMap.recalcPath(this.position, targetPos, false)
+        if (path.length === 0)
+            // invalid path
+            return false
+        else if (path.length <= 2) {
+            // we're already infront of or on it
+            if (callback) callback()
+            return true
+        }
+        path.pop() // we don't want targetPos in the path
+
+        var target = path[path.length - 1]
+        targetPos = { x: target[0], y: target[1] }
+
+        var running = Config.engine.doAlwaysRun
+        if (hexDistance(this.position, targetPos) > 5) running = true
+
+        //console.log("path: %o, callback %o", path, callback)
+        return this.walkTo(targetPos, running, callback, undefined, path)
+    }
+
+    serialize(): SerializedCritter {
+        const obj = <SerializedCritter>super.serialize()
+
+        for (const prop of SERIALIZED_CRITTER_PROPS) {
+            // console.log(`saving prop ${prop} from SerializedCritter = ${this[prop]}`);
+            ;(<any>obj)[prop] = (<any>this)[prop]
+        }
+
+        return obj
+    }
+}
+
+interface SerializedCritter extends SerializedObj {
+    stats: any
+    skills: any
+
+    // TODO: Properly (de)serialize WeaponObj
+    // leftHand: SerializedObj;
+    // rightHand: SerializedObj;
+
+    aiNum: number
+    teamNum: number
+    // ai: AI; // TODO
+    hostile: boolean
+
+    isPlayer: boolean
+    dead: boolean
+}
+
+const SERIALIZED_CRITTER_PROPS = ['stats', 'skills', 'aiNum', 'teamNum', 'hostile', 'isPlayer', 'dead']
+
+// Collection of functions for dealing with critters
+
+const animInfo: { [anim: string]: { type: string } } = {
+    idle: { type: 'static' },
+    attack: { type: 'static' },
+    'weapon-reload': { type: 'static' },
+    walk: { type: 'move' },
+    'static-idle': { type: 'static' },
+    static: { type: 'static' },
+    use: { type: 'static' },
+    pickUp: { type: 'static' },
+    climb: { type: 'static' },
+    hitFront: { type: 'static' },
+    death: { type: 'static' },
+    'death-explode': { type: 'static' },
+    run: { type: 'move' },
+}
+
+function hitSpatialTrigger(position: Point): any {
+    // TODO: return type (SpatialTrigger)
+    return globalState.gMap.getSpatials().filter((spatial) => hexDistance(position, spatial.position) <= spatial.range)
+}
+
+function getAnimPartialActions(art: string, anim: string): { movement: number; actions: PartialAction[] } {
+    const partialActions = { movement: 0, actions: [] as PartialAction[] }
+    let numPartials = 1
+
+    if (anim === 'walk' || anim === 'run') {
+        numPartials = getAnimDistance(art)
+        partialActions.movement = numPartials
+    }
+
+    if (numPartials === 0) numPartials = 1
+
+    var delta = Math.floor(globalState.imageInfo[art].numFrames / numPartials)
+    var startFrame = 0
+    var endFrame = delta
+    for (var i = 0; i < numPartials; i++) {
+        partialActions.actions.push({ startFrame: startFrame, endFrame: endFrame, step: i })
+        startFrame += delta
+        endFrame += delta // ?
+    }
+
+    // extend last partial action to the last frame
+    partialActions.actions[partialActions.actions.length - 1].endFrame = globalState.imageInfo[art].numFrames
+
+    //console.log("partials: %o", partialActions)
+    return partialActions
+}
+
+function getAnimDistance(art: string): number {
+    var info = globalState.imageInfo[art]
+    if (info === undefined) throw 'no image info for ' + art
+
+    var firstShift = info.frameOffsets[0][0].ox
+    var lastShift = info.frameOffsets[1][info.numFrames - 1].ox
+
+    // distance = (shift x of last frame) - (shift x of first frame(?) + 16) / 32
+    return Math.floor((lastShift - firstShift + 16) / 32)
+}
+
+interface PartialAction {
+    startFrame: number
+    endFrame: number
+    step: number
 }

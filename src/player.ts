@@ -15,11 +15,10 @@ limitations under the License.
 */
 
 import { SkillSet, StatSet } from './char.js'
-import { Critter } from './critter.js'
 import { Events } from './events.js'
 import { Point } from './geometry.js'
 import globalState from './globalState.js'
-import { createObjectWithPID, WeaponObj } from './object.js'
+import { Critter, createObjectWithPID, WeaponObj } from './object.js'
 import { centerCamera } from './renderer.js'
 import { fromTileNum } from './tile.js'
 import { uiWorldMap } from './ui.js'

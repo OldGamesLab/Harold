@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { Critter } from "./critter.js";
-import globalState from "./globalState.js";
-import { deserializeObj, SerializedObj } from "./object.js";
-import { arrayIncludes, arrayRemove } from "./util.js";
+import globalState from './globalState.js'
+import { Critter, deserializeObj, SerializedObj } from './object.js'
+import { arrayIncludes, arrayRemove } from './util.js'
 
 // Party member system for DarkFO
 
@@ -26,14 +25,13 @@ export class Party {
     party: Critter[] = []
 
     addPartyMember(obj: Critter) {
-        console.log("party member %o added", obj)
+        console.log('party member %o added', obj)
         this.party.push(obj)
     }
 
     removePartyMember(obj: Critter) {
-        console.log("party member %o removed", obj)
-        if(!arrayRemove(this.party, obj))
-            throw Error("Could not remove party member");
+        console.log('party member %o removed', obj)
+        if (!arrayRemove(this.party, obj)) throw Error('Could not remove party member')
     }
 
     getPartyMembers(): Critter[] {
@@ -49,16 +47,15 @@ export class Party {
     }
 
     getPartyMemberByPID(pid: number) {
-        return this.party.find(obj => obj.pid === pid) || null
+        return this.party.find((obj) => obj.pid === pid) || null
     }
 
     serialize(): SerializedObj[] {
-        return this.party.map(obj => obj.serialize())
+        return this.party.map((obj) => obj.serialize())
     }
 
     deserialize(objs: SerializedObj[]): void {
         this.party.length = 0
-        for(const obj of objs)
-            this.party.push(<Critter>deserializeObj(obj))
+        for (const obj of objs) this.party.push(<Critter>deserializeObj(obj))
     }
 }

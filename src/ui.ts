@@ -15,10 +15,9 @@ limitations under the License.
 */
 
 import { Combat } from './combat.js'
-import { Critter } from './critter.js'
 import { Area, Elevator, loadAreas, lookupMapNameFromLookup } from './data.js'
 import globalState from './globalState.js'
-import { cloneItem, Obj } from './object.js'
+import { Critter, cloneItem, Obj } from './object.js'
 import { Player } from './player.js'
 import { lookupInterfaceArt } from './pro.js'
 import { objectBoundingBox } from './renderer.js'

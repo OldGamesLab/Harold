@@ -48,7 +48,7 @@ export default {
     loadingAssetsLoaded: 0, // how many images we've loaded
     loadingAssetsTotal: 0, // out of this total
     loadingLoadedCallback: null, // loaded callback
-    lazyAssetLoadingQueue: null, // set of lazily-loaded assets being loaded
+    lazyAssetLoadingQueue: {}, // set of lazily-loaded assets being loaded
 
     images: {}, // Image cache
     imageInfo: null, // Metadata about images (Number of frames, FPS, etc)

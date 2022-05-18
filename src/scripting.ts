@@ -17,7 +17,7 @@ Scripting system/engine for DarkFO
 */
 
 import { Combat } from './combat.js'
-import { Critter, critterDamage, critterKill } from './critter.js'
+import { critterDamage, critterKill } from './critter.js'
 import { lookupScriptName } from './data.js'
 import { heart } from './heart.js'
 import {
@@ -31,7 +31,7 @@ import {
 import globalState from './globalState.js'
 import { parseIntFile } from './intfile.js'
 import { useElevator } from './main.js'
-import { createObjectWithPID, Obj, objectGetDamageType } from './object.js'
+import { Critter, createObjectWithPID, Obj, objectGetDamageType } from './object.js'
 import { Player } from './player.js'
 import { makePID } from './pro.js'
 import { centerCamera, objectOnScreen } from './renderer.js'
