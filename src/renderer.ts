@@ -24,6 +24,7 @@ import { Obj } from './object.js'
 import { tileFromScreen } from './tile.js'
 import { Config } from './config.js'
 import { WindowFrame } from './ui.js'
+import { Font } from './formats/fon.js'
 
 // Abstract game renderer
 
@@ -50,6 +51,7 @@ export class Renderer {
     private objects: Obj[]
     roofTiles: TileMap
     floorTiles: TileMap
+    fonts: Font[]
 
     initData(roof: TileMap, floor: TileMap, objects: Obj[]): void {
         this.roofTiles = roof
@@ -110,6 +112,14 @@ export class Renderer {
 
         for (const window of this.windows.filter((w) => w.showing)) {
             this.renderWindow(window)
+        }
+
+        if (Config.ui.showFonts) {
+            let currentYOffset = 0
+            for (const font of this.fonts) {
+                this.renderFont(font, 0, currentYOffset)
+                currentYOffset += font.height
+            }
         }
 
         if (globalState.inCombat) {
@@ -253,6 +263,7 @@ export class Renderer {
     renderWindow(window: WindowFrame): void {
         this.renderImage(window.background, window.position.x, window.position.y, window.width, window.height)
     }
+    renderFont(font: Font, x: number, y: number) {}
 }
 
 export function centerCamera(around: Point) {

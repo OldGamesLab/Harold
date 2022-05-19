@@ -7,49 +7,51 @@ import { Renderer, SCREEN_HEIGHT, SCREEN_WIDTH, TileMap } from './renderer.js'
 import { tileToScreen, TILE_HEIGHT, TILE_WIDTH } from './tile.js'
 import { getFileJSON } from './util.js'
 import { Config } from './config.js'
+import { Font } from './formats/fon.js'
 
 export interface ShaderSources {
     fragment: string
     vertex: string
     fragmentLighting: string
+    fragmentFont: string
 }
 
 export class WebGLRenderer extends Renderer {
-    canvas: HTMLCanvasElement
-    gl: WebGLRenderingContext
-    offsetLocation: WebGLUniformLocation
-    positionLocation: number
-    texCoordLocation: number
-    uScaleLocation: WebGLUniformLocation
-    uNumFramesLocation: WebGLUniformLocation
-    uFrameLocation: WebGLUniformLocation
-    objectUVBuffer: WebGLBuffer
-    texCoordBuffer: WebGLBuffer
-    tileBuffer: WebGLBuffer
-    tileShader: WebGLProgram
+    private canvas: HTMLCanvasElement
+    private gl: WebGL2RenderingContext
+    private offsetLocation: WebGLUniformLocation
+    private positionLocation: number
+    private texCoordLocation: number
+    private uScaleLocation: WebGLUniformLocation
+    private uNumFramesLocation: WebGLUniformLocation
+    private uFrameLocation: WebGLUniformLocation
+    private objectUVBuffer: WebGLBuffer
+    private texCoordBuffer: WebGLBuffer
+    private tileBuffer: WebGLBuffer
+    private tileShader: WebGLProgram
 
-    uLightBuffer: WebGLUniformLocation
-    litOffsetLocation: WebGLUniformLocation
-    litScaleLocation: WebGLUniformLocation
-    u_colorTable: WebGLUniformLocation // [0x8000];
-    u_intensityColorTable: WebGLUniformLocation // [65536];
-    u_paletteRGB: WebGLUniformLocation // vec3 [256];
-    lightBufferTexture: WebGLTexture
-    floorLightShader: WebGLProgram
+    private fontShader: WebGLProgram
 
-    textures: { [key: string]: WebGLTexture } = {} // WebGL texture cache
+    private uLightBuffer: WebGLUniformLocation
+    private litOffsetLocation: WebGLUniformLocation
+    private litScaleLocation: WebGLUniformLocation
+    private u_colorTable: WebGLUniformLocation // [0x8000];
+    private u_intensityColorTable: WebGLUniformLocation // [65536];
+    private u_paletteRGB: WebGLUniformLocation // vec3 [256];
+    private lightBufferTexture: WebGLTexture
+    private floorLightShader: WebGLProgram
 
-    shaderSources: ShaderSources
+    private textures: { [key: string]: WebGLTexture } = {} // WebGL texture cache
 
-    constructor(shaderSources: ShaderSources) {
+    constructor(private shaderSources: ShaderSources, fonts: Font[]) {
         super()
-        this.shaderSources = shaderSources
+        this.fonts = fonts
     }
 
     newTexture(key: string, img: TexImageSource, doCache = true): WebGLTexture {
         const gl = this.gl
         const texture = this.gl.createTexture()
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+        gl.bindTexture(this.gl.TEXTURE_2D, texture)
 
         // Set the parameters so we can render any size image.
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -118,6 +120,24 @@ export class WebGLRenderer extends Renderer {
         return texture
     }
 
+    // create a texture from a Uint8Array with RGB components
+    textureFromFont(font: Font): WebGLTexture {
+        const gl = this.gl
+        const texture = gl.createTexture()
+        const width = font.symbols.reduce((accumulator, sym) => accumulator + sym.width, 0)
+        const alignment = 1
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, alignment)
+        gl.bindTexture(gl.TEXTURE_2D, texture)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, width, font.height, 0, gl.RED, gl.UNSIGNED_BYTE, font.textureData)
+        const defaultAlignment = 4
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, defaultAlignment)
+        return texture
+    }
+
     init(): void {
         this.canvas = document.getElementById('cnv') as HTMLCanvasElement
 
@@ -126,16 +146,15 @@ export class WebGLRenderer extends Renderer {
         heart.ctx = null
         heart._bg = null
 
-        const gl =
-            this.canvas.getContext('webgl') || (this.canvas.getContext('experimental-webgl') as WebGLRenderingContext)
+        const gl = this.canvas.getContext('webgl2') as WebGL2RenderingContext
         if (!gl) {
             alert('error getting WebGL context')
             return
         }
         this.gl = gl
 
-        if (!gl.getExtension('OES_texture_float')) {
-            throw 'no texture float extension'
+        for (const font of this.fonts) {
+            this.textures[font.filepath] = this.textureFromFont(font)
         }
 
         this.gl.clearColor(0.75, 0.75, 0.75, 1.0)
@@ -150,6 +169,10 @@ export class WebGLRenderer extends Renderer {
         // set up tile shader
         this.tileShader = this.getProgram(this.gl, 'vertex', 'fragment')
         this.gl.useProgram(this.tileShader)
+
+        // set up font shader
+        this.fontShader = this.getProgram(this.gl, 'vertex', 'fragmentFont')
+        // this.gl.useProgram(this.fontShader)
 
         // set up uniforms/attributes
         this.positionLocation = gl.getAttribLocation(this.tileShader, 'a_position')
@@ -175,8 +198,6 @@ export class WebGLRenderer extends Renderer {
         )
         gl.enableVertexAttribArray(this.texCoordLocation)
         gl.vertexAttribPointer(this.texCoordLocation, 2, gl.FLOAT, false, 0, 0)
-
-        this.objectUVBuffer = gl.createBuffer()
 
         //this.tileBuffer = this.rectangleBuffer(this.gl, 0, 0, 80, 36)
         this.tileBuffer = this.rectangleBuffer(this.gl, 0, 0, 1, 1)
@@ -421,6 +442,7 @@ export class WebGLRenderer extends Renderer {
 
     drawTileMap(tilemap: TileMap, offsetY: number): void {
         const gl = this.gl
+        this.gl.useProgram(this.tileShader)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.tileBuffer)
         gl.uniform1f(this.uNumFramesLocation, 1)
         gl.uniform1f(this.uFrameLocation, 0)
@@ -513,6 +535,7 @@ export class WebGLRenderer extends Renderer {
         }
 
         const gl = this.gl
+        this.gl.useProgram(this.tileShader)
 
         // draw
         gl.bindTexture(gl.TEXTURE_2D, texture)
@@ -528,5 +551,24 @@ export class WebGLRenderer extends Renderer {
 
     renderImage(imgPath: string, x: number, y: number, width: number, height: number): void {
         this.renderFrame(imgPath, x, y, width, height, 1, 0)
+    }
+
+    renderFont(font: Font, x: number, y: number) {
+        const texture = this.textures[font.filepath]
+        const width = font.symbols.reduce((accumulator, sym) => accumulator + sym.width, 0)
+        const gl = this.gl
+        // FIXME: set up separate uniforms for this shader
+        // this.gl.useProgram(this.fontShader)
+
+        // draw
+        gl.bindTexture(gl.TEXTURE_2D, texture)
+
+        gl.uniform1f(this.uNumFramesLocation, 1)
+        gl.uniform1f(this.uFrameLocation, 0)
+
+        gl.uniform2f(this.offsetLocation, x, y)
+        gl.uniform2f(this.uScaleLocation, width, font.height)
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6)
     }
 }

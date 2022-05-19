@@ -9,7 +9,8 @@
         "noImplicitThis": true,
         "outDir": "js",
         "target": "es2021",
-        "lib": ["es2021", "dom"]
+        "lib": ["es2021", "dom"],
+        "allowJs": true
     },
 
     "include": ["src/**/*"],

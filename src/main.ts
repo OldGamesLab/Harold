@@ -39,6 +39,7 @@ import {
 import { getFileJSON, getProtoMsg } from './util.js'
 import { WebGLRenderer } from './webglrenderer.js'
 import { Config } from './config.js'
+import { fonUnpack } from './formats/fon.js'
 
 // Return the skill ID used by the Fallout 2 engine
 function getSkillID(skill: Skills): number {
@@ -242,13 +243,18 @@ window.onload = async function () {
     const fragment = await fetch('shaders/fragment.glsl')
     const fragmentLighting = await fetch('shaders/fragmentLighting.glsl')
     const vertex = await fetch('shaders/vertex.glsl')
+    const fragmentFont = await fetch('shaders/fragmentFont.glsl')
 
     // initialize renderer
-    globalState.renderer = new WebGLRenderer({
-        fragment: await fragment.text(),
-        fragmentLighting: await fragmentLighting.text(),
-        vertex: await vertex.text(),
-    })
+    globalState.renderer = new WebGLRenderer(
+        {
+            fragment: await fragment.text(),
+            fragmentLighting: await fragmentLighting.text(),
+            vertex: await vertex.text(),
+            fragmentFont: await fragmentFont.text(),
+        },
+        await Promise.all([0, 1, 2, 3, 5].map((i) => fonUnpack(`data/font${i}.fon`)))
+    )
 
     globalState.renderer.init()
 
