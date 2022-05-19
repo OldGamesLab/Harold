@@ -54,8 +54,9 @@ If you'd like to contribute, those might be major parts to look into.
 
 To use this, you'll need a few things:
 
--   A copy of Fallout 2 (already installed). You can buy one on [GOG](https://www.gog.com/en/game/fallout_2) and unpack
-    on any platform supported by [innoextract](https://github.com/dscharrer/innoextract).
+-   A copy of Fallout 2 (already installed). You can buy one on [GOG](https://www.gog.com/en/game/fallout_2), download
+    the standalone installer, and unpack on any platform supported by
+    [innoextract](https://github.com/dscharrer/innoextract), or run the installer `.exe` if you're on Windows.
 
 The rest of the dependencies can be installed all at once if you're on macOS and using [Homebrew](https://brew.sh).
 Just run this command in the directory of your repository clone:
