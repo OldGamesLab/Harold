@@ -62,7 +62,7 @@ export default {
     lastGameTick: 0, // real time of the last game tick
     gameHasFocus: false, // do we have input focus?
     lastMousePickTime: 0, // time when we last checked what's under the mouse cursor
-    _lastFPSTime: 0, // Time since FPS counter was last updated
+    lastFPSTime: 0, // Time since FPS counter was last updated
 
     floatMessages: [],
     renderer: null,
@@ -109,7 +109,9 @@ export default {
     lastGameTick: number
     gameHasFocus: boolean
     lastMousePickTime: number
-    _lastFPSTime: number
+    lastUpdateTime: number
+    lastDrawTime: number
+    lastFPSTime: number
 
     floatMessages: FloatMessage[]
     renderer: Renderer

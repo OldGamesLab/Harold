@@ -516,9 +516,17 @@ heart.update = function () {
     }
     const time = window.performance.now()
 
-    if (time - globalState._lastFPSTime >= 500) {
-        globalState.$fpsOverlay!.textContent = 'fps: ' + heart.timer.getFPS()
-        globalState._lastFPSTime = time
+    if (time - globalState.lastFPSTime >= 500) {
+        globalState.$fpsOverlay.textContent = 'fps: ' + heart.timer.getFPS()
+        globalState.lastFPSTime = time
+
+        if (globalState.lastUpdateTime != undefined) {
+            globalState.$fpsOverlay.textContent += ' update: ' + globalState.lastUpdateTime + 'ms'
+        }
+
+        if (globalState.lastDrawTime) {
+            globalState.$fpsOverlay.textContent += ' draw: ' + globalState.lastDrawTime + 'ms'
+        }
     }
 
     if (globalState.gameHasFocus) {
@@ -607,13 +615,19 @@ heart.update = function () {
 
         obj.updateAnim()
     }
+
+    globalState.lastUpdateTime = Math.floor(window.performance.now() - time)
 }
 
 heart.draw = () => {
+    const time = window.performance.now()
+
     if (globalState.isWaitingOnRemote) {
         return
     }
-    return globalState.renderer.render()
+    globalState.renderer.render()
+
+    globalState.lastDrawTime = Math.floor(window.performance.now() - time)
 }
 
 export function useElevator(): void {
