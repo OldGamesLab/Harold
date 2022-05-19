@@ -19,7 +19,7 @@ export const Config = {
         showWalls: true, // show walls?
         showBoundingBox: false, // show bounding boxes around objects?
         showSpatials: true, // show spatial script triggers?
-        showFonts: true, // show all fonts for debugging?
+        showFonts: false, // show all fonts for debugging?
     },
 
     engine: {
