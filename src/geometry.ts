@@ -19,6 +19,9 @@ limitations under the License.
 // geometry constants
 export const HEX_GRID_SIZE = 200 // hex grid is 200x200
 
+export const HEX_WIDTH = 32;
+export const HEX_HEIGHT = 16;
+
 export interface Point {
     x: number
     y: number
@@ -44,68 +47,92 @@ export function hexToScreen(x: number, y: number): Point {
     return { x: sx, y: sy }
 }
 
+/**
+ * Conversion mouse pointer pixel coordinates to float cube https://www.redblobgames.com/grids/hexagons/#coordinates-cube
+ * Useful for standard vector operations and existing algorithms like distances, rotation, reflection, 
+ * line drawing, conversion to/from screen coordinates, etc.
+ * Third coord need only for algorithms and conversion to hex grid.
+ *
+ * Looks like parallelogram grid:
+ *     z
+ *  x __\___\___\__ 
+ *       \   \   \
+ *      __\___\___\__
+ *         \   \   \
+ *        __\___\___\__
+ *           \   \   \
+ *
+ * @param point pixels
+ * @return float 3d cartesian coordinates
+ */
+export function pixelToCube(point: Point): Point3 {
+    let x = point.x / HEX_WIDTH - point.y / 3 / (HEX_HEIGHT / 2);
+    let z = point.y / (HEX_HEIGHT * 3 / 4);
+    return { x, y: -x - z, z };
+}
+
+/**
+ * Rounding 3d cartesian coordinates to conversion hexagonal grid https://www.redblobgames.com/grids/hexagons/#rounding
+ *
+ *
+ * * Looks like hexagon grid:
+ *     
+ *      z  ___ 
+ *    \___/   \___/   
+ *  x /   \___/   \
+ *    \___/   \___/
+ *    /   \___/   \
+ *        /   \ 
+ *
+ *
+ * @param cube float 3d cartesian coordinates 
+ * @return int 3d hexagonal coordinates 
+ */
+export function cubeRound(cube: Point3): Point3 {
+    let round = {
+        x: Math.round(cube.x),
+        y: Math.round(cube.y),
+        z: Math.round(cube.z)
+    };
+
+    let diff = {
+        x: Math.abs(round.x - cube.x),
+        y: Math.abs(round.y - cube.y),
+        z: Math.abs(round.z - cube.z)
+    };
+
+    if (diff.x > diff.y && diff.x > diff.z)
+        round.x = -round.y - round.z;
+    else if (diff.y > diff.z)
+        round.y = -round.x - round.z;
+    else
+        round.z = -round.x - round.y;
+
+    return round;
+}
+
+/**
+ * Conversion round Cube to Hex with offset by tiles and map https://www.redblobgames.com/grids/hexagons/#conversions-offset
+ * 
+ * @param cubeRound int 3d hexagonal coordinates 
+ * @returns int 2d hexagonal offset coordinates 
+ */
+export function сubeRoundToHex(cubeRound: Point3): Point {
+    let x = (cubeRound.x - 150) * (-1);
+    let y = (cubeRound.z + (cubeRound.x - !(cubeRound.x & 1)) / 2 - 75) | 0;
+
+    return { x, y };
+}
+
+/**
+ * Conversion mouse pointer pixel coordinates to hex-offset
+ * 
+ * @param x pixels
+ * @param y pixels
+ * @returns int 2d hexagonal offset coordinates 
+ */
 export function hexFromScreen(x: number, y: number): Point {
-    var x0 = 4800
-    var y0 = 0
-    var nx, ny
-
-    if (x - x0 < 0) nx = (x - x0 + 1) / 16 - 1
-    else nx = (x - x0) / 16
-
-    if (y - y0 < 0) ny = (y - y0 + 1) / 12 - 1
-    else ny = (y - y0) / 12
-
-    if (Math.abs(nx) % 2 != Math.abs(ny) % 2) nx--
-
-    var xhBase = x0 + 16 * nx
-    var yhBase = y0 + 12 * ny
-
-    var hx = (4 * (yhBase - y0) - 3 * (xhBase - x0)) / 96
-    var hy = (yhBase - y0) / 12 - hx / 2
-
-    var dx = x - xhBase
-    var dy = y - yhBase
-
-    // XXX: Some of these cases fall through, should be inspected.
-
-    switch (dy) {
-        case 0:
-            if (dx < 12) {
-                hy--
-                break
-            }
-            if (dx > 18) {
-                if (hx % 2 == 1) hy--
-                hx--
-                break
-            }
-
-        case 1:
-            if (dx < 8) {
-                hx--
-                break
-            }
-            if (dx > 23) {
-                if (hx % 2 == 1) hy--
-                hx--
-                break
-            }
-
-        case 2:
-            if (dx < 4) {
-                hy--
-                break
-            }
-            if (dx > 28) {
-                if (hx % 2 == 1) hy--
-                hx--
-                break
-            }
-        default:
-            break
-    }
-
-    return { x: Math.round(hx), y: Math.round(hy) }
+    return сubeRoundToHex(cubeRound(pixelToCube({ x, y })));
 }
 
 export function hexNeighbors(position: Point): Point[] {
