@@ -47,12 +47,47 @@ export function hexToScreen(x: number, y: number): Point {
     return { x: sx, y: sy }
 }
 
-export function pixel2Cube(point: Point): Point3 {
-    let x = point.x / HEX_WIDTH - point.y / 3 / (HEX_HEIGHT/2);
+/**
+ * Conversion mouse pointer pixel coordinates to float cube https://www.redblobgames.com/grids/hexagons/#coordinates-cube
+ * Useful for standard vector operations and existing algorithms like distances, rotation, reflection, 
+ * line drawing, conversion to/from screen coordinates, etc.
+ * Third coord need only for algorithms and conversion to hex grid.
+ *
+ * Looks like parallelogram grid:
+ *     z
+ *  x __\___\___\__ 
+ *       \   \   \
+ *      __\___\___\__
+ *         \   \   \
+ *        __\___\___\__
+ *           \   \   \
+ *
+ * @param point pixels
+ * @return float 3d cartesian coordinates
+ */
+export function pixelToCube(point: Point): Point3 {
+    let x = point.x / HEX_WIDTH - point.y / 3 / (HEX_HEIGHT / 2);
     let z = point.y / (HEX_HEIGHT * 3 / 4);
     return { x, y: -x - z, z };
 }
 
+/**
+ * Rounding 3d cartesian coordinates to conversion hexagonal grid https://www.redblobgames.com/grids/hexagons/#rounding
+ *
+ *
+ * * Looks like hexagon grid:
+ *     
+ *      z  ___ 
+ *    \___/   \___/   
+ *  x /   \___/   \
+ *    \___/   \___/
+ *    /   \___/   \
+ *        /   \ 
+ *
+ *
+ * @param cube float 3d cartesian coordinates 
+ * @return int 3d hexagonal coordinates 
+ */
 export function cubeRound(cube: Point3): Point3 {
     let round = {
         x: Math.round(cube.x),
@@ -67,24 +102,37 @@ export function cubeRound(cube: Point3): Point3 {
     };
 
     if (diff.x > diff.y && diff.x > diff.z)
-      round.x = -round.y - round.z;
+        round.x = -round.y - round.z;
     else if (diff.y > diff.z)
-      round.y = -round.x - round.z;
+        round.y = -round.x - round.z;
     else
-      round.z = -round.x - round.y;
+        round.z = -round.x - round.y;
 
     return round;
 }
 
-export function hexFromCubeRound(cubeRound) {
+/**
+ * Conversion round Cube to Hex with offset by tiles and map https://www.redblobgames.com/grids/hexagons/#conversions-offset
+ * 
+ * @param cubeRound int 3d hexagonal coordinates 
+ * @returns int 2d hexagonal offset coordinates 
+ */
+export function сubeRoundToHex(cubeRound: Point3): Point {
     let x = (cubeRound.x - 150) * (-1);
-    let y = (cubeRound.z + (cubeRound.x - (!(cubeRound.x & 1))) / 2 - 75) | 0;
-  
+    let y = (cubeRound.z + (cubeRound.x - !(cubeRound.x & 1)) / 2 - 75) | 0;
+
     return { x, y };
 }
 
+/**
+ * Conversion mouse pointer pixel coordinates to hex-offset
+ * 
+ * @param x pixels
+ * @param y pixels
+ * @returns int 2d hexagonal offset coordinates 
+ */
 export function hexFromScreen(x: number, y: number): Point {
-    return hexFromCubeRound(cubeRound(pixel2Cube({x,y})));
+    return сubeRoundToHex(cubeRound(pixelToCube({ x, y })));
 }
 
 export function hexNeighbors(position: Point): Point[] {
