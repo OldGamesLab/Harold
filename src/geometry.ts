@@ -119,7 +119,8 @@ export function cubeRound(cube: Point3): Point3 {
  */
 export function сubeRoundToHex(cubeRound: Point3): Point {
     let x = (cubeRound.x - 150) * (-1);
-    let y = (cubeRound.z + (cubeRound.x - !(cubeRound.x & 1)) / 2 - 75) | 0;
+    let isEvenX = !(cubeRound.x & 1);
+    let y = (cubeRound.z + (cubeRound.x - Number(isEvenX)) / 2 - 75) | 0;
 
     return { x, y };
 }
