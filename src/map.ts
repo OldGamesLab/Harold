@@ -483,7 +483,7 @@ export class GameMap {
         }
 
         const grid = new PF.Grid(HEX_GRID_SIZE, HEX_GRID_SIZE, matrix)
-        const finder = new PF.BestFirstFinder()
+        const finder = new PF.AStarFinder()
         return finder.findPath(start.x, start.y, goal.x, goal.y, grid)
     }
 
